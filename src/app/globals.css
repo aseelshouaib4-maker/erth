@@ -1,1 +1,312 @@
 @import "tailwindcss";
+
+/* ------------------------------------------------------------------
+   Design tokens — «الأسلوب الثاني: المرئيات والزخارف»
+   Blue is the ground, gold is a point of light (not an area).
+   Brand faces are self-hosted through next/font/local (see layout.tsx).
+------------------------------------------------------------------ */
+@theme {
+  /* الأرضية الغالبة */
+  --color-blue: #004c60;
+  /* سلّم الدرجات */
+  --color-blue-dark: #02313e;
+  --color-blue-70: #4a7e88;
+  --color-blue-54: #87a8af;
+  --color-blue-32: #b8cacb;
+  --color-blue-10: #dde3e1;
+  /* الذهبي — نقطة ضوء */
+  --color-gold: #c99700;
+  --color-gold-soft: #d9b13a;
+  /* محايدات الوضوح */
+  --color-cream: #f6f4ef;
+  --color-mist: #dce4e6;
+  --color-night: #022a36;
+  /* ورق الأرشيف — من اللوحة الثانوية في الدليل */
+  --color-paper: #ede5d6;
+  --color-newsprint: #dcd3c0;
+  --color-kraft: #c8bba1;
+  --color-ink: #1b1916;
+
+  /* النظام الطباعي: لفتا (العناوين) · القبس (المساند) · القاهرة (المتن) */
+  --font-display: var(--font-lifta), "Noto Kufi Arabic", sans-serif;
+  --font-heading: var(--font-alqabas), "Noto Sans Arabic", sans-serif;
+  --font-body: var(--font-cairo), "Cairo", sans-serif;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+
+  --breakpoint-3xl: 1800px;
+
+  /* هندسة موحّدة: زاوية واحدة وظلّان اثنان لكل الأزرار والبطاقات والحقول */
+  --radius-ui: 4px;
+  --shadow-ui: 0 1px 2px rgba(2, 42, 54, 0.04);
+  --shadow-lift: 0 12px 28px -16px rgba(2, 42, 54, 0.38);
+  --shadow-lift-dark: 0 14px 32px -18px rgba(0, 0, 0, 0.55);
+
+  /* إيقاع الأقسام: مسافة واحدة تتكرّر */
+  --space-section: clamp(4.5rem, 8vw, 7.5rem);
+
+  --animate-erth-ping: erth-ping 3.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+  --animate-erth-spin: erth-spin 54s linear infinite;
+  --animate-erth-breathe: erth-breathe 6s ease-in-out infinite;
+}
+
+:root {
+  --gutter: clamp(1.25rem, 4vw, 4.5rem);
+}
+
+@keyframes erth-ping {
+  0% {
+    transform: scale(0.92);
+    opacity: 0.5;
+  }
+  70%,
+  100% {
+    transform: scale(1.85);
+    opacity: 0;
+  }
+}
+@keyframes erth-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes erth-breathe {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.72;
+    transform: scale(1.09);
+  }
+}
+
+/* ------------------------------------------------------------------
+   Base
+------------------------------------------------------------------ */
+/* Scrolling stays instant so the router can restore a position exactly; every
+   deliberate glide (anchors, "back to top") asks for smooth behaviour itself. */
+html {
+  scroll-behavior: auto;
+  background: var(--color-blue);
+}
+
+body {
+  background: var(--color-blue);
+  color: var(--color-cream);
+  font-family: var(--font-body);
+  font-weight: 300;
+  line-height: 1.9; /* قاعدة المسافات: 1.9 في المتن */
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: clip;
+  min-height: 100dvh;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  line-height: 1.2; /* 1.2 في العناوين */
+  font-weight: 700;
+}
+
+::selection {
+  background: var(--color-gold);
+  color: var(--color-night);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 3px;
+}
+
+/*
+ * الحقل الذي يتلوّن إطار حاويته عند التركيز لا يحتاج طوقًا ثانيًا داخله.
+ * القاعدة هنا خارج الطبقات عمدًا: «focus:outline-none» من تايلويند داخل
+ * طبقة، والطبقات تخسر أمام غير المطبَّق مهما علت نوعيّتها.
+ */
+.no-focus-ring:focus-visible,
+.field:focus-visible {
+  outline: none;
+}
+
+input,
+textarea,
+button {
+  font: inherit;
+}
+
+/* زاوية واحدة لكل أزرار الموقع. أي «rounded-*» صريح يعلو على هذا. */
+@layer base {
+  button,
+  [type="button"],
+  [type="submit"],
+  [type="reset"] {
+    border-radius: var(--radius-ui);
+  }
+}
+
+/* Elements animated by GSAP start hidden only when scripting is on,
+   so the site still reads without JavaScript. */
+@media (scripting: enabled) {
+  [data-reveal],
+  [data-hero-anim] {
+    opacity: 0;
+  }
+}
+@media (scripting: none) {
+  [data-intro] {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal],
+  [data-hero-anim] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+.split-line {
+  will-change: transform;
+}
+
+/* ------------------------------------------------------------------
+   Utilities
+------------------------------------------------------------------ */
+/* محور الارتفاع: الشاشات القصيرة تضيق فيها الفاتحة حتى لا تلامس الشريط السفلي */
+@custom-variant short (@media (max-height: 820px));
+@custom-variant shorter (@media (max-height: 680px));
+
+@utility eyebrow {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em; /* قاعدة التباعد: التسميات 0.10 */
+  color: var(--color-gold);
+  line-height: 1.4;
+}
+
+@utility tracking-sep {
+  letter-spacing: 0.22em; /* الفواصل 0.22 */
+}
+
+/* لفتا الأسود — العناوين الرئيسية */
+@utility text-display {
+  font-family: var(--font-display);
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: 0; /* العناوين 0 */
+}
+
+/* لفتا سواش — لحظات العرض الكبرى */
+@utility text-swash {
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+
+/* القبس — العناوين الفرعية والاقتباس */
+@utility text-heading {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+@utility px-gutter {
+  padding-inline: var(--gutter);
+}
+
+@utility rule-gold {
+  display: block;
+  width: 4rem;
+  height: 1px;
+  background: var(--color-gold);
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility ph-text {
+  /* text placeholder: clearly marked slot, never real copy */
+  color: var(--color-blue-54);
+  text-decoration: underline;
+  text-decoration-style: dashed;
+  text-decoration-color: color-mix(in srgb, var(--color-gold) 60%, transparent);
+  text-underline-offset: 0.35em;
+  font-family: var(--font-body);
+  font-weight: 400;
+}
+
+@utility bg-blue-grid {
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--color-blue-54) 18%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--color-blue-54) 18%, transparent) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+@utility bg-paper-grid {
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--color-kraft) 55%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--color-kraft) 55%, transparent) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+/* ------------------------------------------------------------------
+   Form fields — one style for every input, textarea and select on the
+   archive-paper ground. Bordered and lightly filled, never underline-only.
+------------------------------------------------------------------ */
+@utility field {
+  width: 100%;
+  border: 1px solid color-mix(in srgb, var(--color-ink) 20%, transparent);
+  border-radius: var(--radius-ui);
+  background: color-mix(in srgb, #fff 55%, var(--color-paper));
+  padding: 0.7rem 0.9rem;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--color-ink);
+  box-shadow: var(--shadow-ui);
+  transition:
+    border-color 0.25s var(--ease-out-expo),
+    box-shadow 0.25s var(--ease-out-expo),
+    background-color 0.25s var(--ease-out-expo);
+
+  &::placeholder {
+    color: color-mix(in srgb, var(--color-ink) 38%, transparent);
+  }
+  &:hover {
+    border-color: color-mix(in srgb, var(--color-ink) 32%, transparent);
+  }
+  &:focus {
+    outline: none;
+    border-color: var(--color-blue);
+    background: #fff;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-blue) 14%, transparent);
+  }
+}
+
+/* رقعة القسم: نفس المسافة العلويّة والسفليّة في كل مكان */
+@utility py-section {
+  padding-block: var(--space-section);
+}
+
+/* Portrait treatment: the archival photograph is multiplied into the blue ground. */
+@utility img-tile {
+  mix-blend-mode: multiply;
+  filter: grayscale(1) contrast(1.05);
+}
