@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: "تواصل" };
 export default function ContactPage() {
   return (
     <>
-      <PageHeader eyebrow="تواصل" title="تواصل معنا" index="06" unit="rose" tone="paper" rule={false} />
+      <PageHeader eyebrow="تواصل" title="تواصل معنا" tone="paper" rule={false} />
       <ContactSections />
     </>
   );

@@ -10,8 +10,6 @@ export default function SpeechesPage() {
       <PageHeader
         eyebrow="الأرشيف"
         title="خطابات"
-        index="03"
-        unit="star"
         description="بعضٌ من خطاباته التي طلّ بها على التلفاز و في المباشر"
       />
       <SpeechList />

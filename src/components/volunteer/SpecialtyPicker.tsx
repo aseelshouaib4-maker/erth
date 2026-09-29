@@ -111,7 +111,7 @@ export function SpecialtyPicker({ name = "specialties" }: { name?: string }) {
       )}
 
       <div className="field flex items-center gap-3 py-0 ps-3">
-        <SearchIcon className="h-4 w-4 shrink-0 text-ink/40" />
+        <SearchIcon className="h-4 w-4 shrink-0 text-ink/65" />
         <input
           value={query}
           onChange={(e) => {
@@ -148,11 +148,11 @@ export function SpecialtyPicker({ name = "specialties" }: { name?: string }) {
           className="absolute inset-x-0 top-full z-30 mt-2 max-h-72 overflow-y-auto rounded-ui border border-ink/15 bg-white/97 shadow-lift backdrop-blur-md"
         >
           {grouped.length === 0 ? (
-            <p className="px-4 py-4 text-[0.8rem] text-ink/50">لا نتائج — يمكنك إضافة اختصاصك كما هو.</p>
+            <p className="px-4 py-4 text-[0.8rem] text-ink/65">لا نتائج — يمكنك إضافة اختصاصك كما هو.</p>
           ) : (
             grouped.map(([group, values]) => (
               <div key={group}>
-                <p className="eyebrow sticky top-0 bg-white/97 px-4 py-2 text-ink/55 backdrop-blur-md">{group}</p>
+                <p className="eyebrow sticky top-0 bg-white/97 px-4 py-2 text-ink/65 backdrop-blur-md">{group}</p>
                 <ul>
                   {values.map((value) => {
                     runningIndex += 1;

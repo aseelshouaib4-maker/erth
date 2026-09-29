@@ -86,8 +86,9 @@ export function SpeechList({ items = speechItems }: { items?: SpeechItem[] } = {
                     <Slot value={item.duration} />
                     <span
                       className={cn(
-                        "inline-flex h-10 w-10 items-center justify-center border transition-colors",
-                        isActive ? "border-gold bg-gold text-night" : "border-cream/20 group-hover:border-gold group-hover:text-gold",
+                        "inline-flex h-10 w-10 items-center justify-center border transition-colors duration-300",
+                        isActive ? "border-gold text-gold" : "border-cream/20 text-cream",
+                        "group-hover:border-gold group-hover:bg-gold group-hover:text-night group-focus-visible:border-gold group-focus-visible:bg-gold group-focus-visible:text-night",
                       )}
                     >
                       <PlayIcon className="h-4 w-4 -scale-x-100" />

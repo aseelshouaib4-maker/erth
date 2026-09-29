@@ -196,7 +196,8 @@ export function ArchiveExplorer() {
   return (
     <div className="bg-blue">
       {/* شريط الأدوات: البحث والمجموعتان في حاوية واحدة */}
-      <div className="sticky top-16 z-30 border-b border-cream/10 bg-blue/95 backdrop-blur-md md:top-[72px]">
+      {/* يمرّ مع الصفحة ولا يثبت أعلاها، فلا يغطّي الشبكة عند التمرير */}
+      <div className="relative z-30 border-b border-cream/10 bg-blue">
         <div className="px-gutter py-4 md:py-5">
           <div className="rounded-ui border border-cream/12 bg-blue-dark/40">
             {/* البحث — أعلى الحاوية، لا معلّقًا تحتها */}

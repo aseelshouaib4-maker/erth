@@ -90,7 +90,7 @@ function SectionBlock({ step, children }: { step: (typeof volunteerSteps)[number
         </span>
         <span className="min-w-0">
           <span className="text-heading block text-[1.1rem] text-blue md:text-[1.25rem]">{step.title}</span>
-          {step.note && <span className="mt-1 block text-[0.78rem] leading-[1.7] text-ink/50">{step.note}</span>}
+          {step.note && <span className="mt-1 block text-[0.78rem] leading-[1.7] text-ink/65">{step.note}</span>}
         </span>
       </div>
       <div data-reveal>{children}</div>
@@ -105,7 +105,7 @@ export function VolunteerForm() {
 
   return (
     <div ref={ref} className="px-gutter bg-paper pb-24 pt-10 md:pb-32">
-      <p data-reveal className="mx-auto mb-8 max-w-4xl text-[0.75rem] tracking-[0.08em] text-ink/45">
+      <p data-reveal className="mx-auto mb-8 max-w-4xl text-[0.75rem] tracking-[0.08em] text-ink/65">
         {volunteerRequired}
       </p>
 
@@ -161,7 +161,7 @@ export function VolunteerForm() {
               <FieldLabel label="الاختصاص العلمي الدقيق" />
               <p className="mb-4 mt-2 max-w-2xl text-[0.82rem] leading-[1.9] text-ink/60">{specialtyIntro}</p>
               <SpecialtyPicker />
-              <p className="mt-4 max-w-2xl text-[0.78rem] leading-[1.8] text-ink/45">{specialtyNote}</p>
+              <p className="mt-4 max-w-2xl text-[0.78rem] leading-[1.8] text-ink/65">{specialtyNote}</p>
             </div>
 
             <div className="grid gap-8 sm:grid-cols-2">
@@ -295,7 +295,7 @@ export function VolunteerForm() {
             <Button type="submit" variant="paper-solid" size="lg" arrow>
               {volunteerCopy.submit}
             </Button>
-            <p className="text-[0.7rem] leading-[1.8] tracking-[0.08em] text-ink/50" role="status" aria-live="polite">
+            <p className="text-[0.7rem] leading-[1.8] tracking-[0.08em] text-ink/65" role="status" aria-live="polite">
               {sent ? volunteerCopy.sent : volunteerCopy.uiNote}
             </p>
           </div>

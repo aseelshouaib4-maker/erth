@@ -11,8 +11,6 @@ export default function ArchivePage() {
       <PageHeader
         eyebrow="المجموعة"
         title="أرشيف"
-        index="02"
-        unit="rose"
         description="صور وفيديوهات ونصوص وخطابات، مع تصفية بحسب المحتوى والتاريخ وبحث داخل مراحل السيرة."
       />
       <Suspense fallback={<div className="min-h-[60vh] bg-blue" />}>

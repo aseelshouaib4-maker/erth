@@ -15,7 +15,7 @@ type Props = {
 /** The only real photograph in the project: the character portrait. */
 export function Portrait({ variant = "tile", className, priority, sizes = "(min-width: 768px) 40vw, 80vw", innerProps }: Props) {
   return (
-    <div className={cn("relative overflow-hidden", variant === "tile" ? "bg-[#e5e5e5]" : "bg-blue", className)}>
+    <div className={cn("relative overflow-hidden", variant === "tile" ? "bg-mist" : "bg-blue", className)}>
       <div {...innerProps} className={cn("absolute inset-0", innerProps?.className)}>
         <Image
           src={person.portrait.src}

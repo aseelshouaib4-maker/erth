@@ -40,13 +40,13 @@ export function EyeLibraryPreview() {
             {articles.map((item, i) => (
               <li key={item.id} data-reveal>
                 <TransitionLink href={`/eye/${item.id}`} className="group flex items-baseline gap-4 border-t border-ink/15 py-4">
-                  <span className="eyebrow w-7 tabular-nums text-ink/45">{String(i + 1).padStart(2, "0")}</span>
+                  <span className="eyebrow w-7 tabular-nums text-ink/65">{String(i + 1).padStart(2, "0")}</span>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-[0.95rem] text-ink transition-colors group-hover:text-blue">
                       <Slot value={item.title} className="text-ink/70" />
                     </span>
-                    <span className="mt-1 block text-[0.65rem] tracking-[0.1em] text-ink/45">
-                      <Slot value={item.date} className="text-ink/50" />
+                    <span className="mt-1 block text-[0.65rem] tracking-[0.1em] text-ink/65">
+                      <Slot value={item.date} className="text-ink/65" />
                     </span>
                   </span>
                 </TransitionLink>

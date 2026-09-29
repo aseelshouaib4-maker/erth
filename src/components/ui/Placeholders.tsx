@@ -172,7 +172,7 @@ function DocumentSheet() {
 /** Photograph tile: the real portrait sits as a printed tile on the blue ground. */
 export function PortraitTile({ className, children }: { className?: string; children: React.ReactNode }) {
   return (
-    <div className={cn("relative overflow-hidden bg-[#e5e5e5]", className)}>
+    <div className={cn("relative overflow-hidden bg-mist", className)}>
       {children}
       <span className="pointer-events-none absolute inset-3 border border-night/10" />
     </div>

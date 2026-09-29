@@ -8,10 +8,11 @@ import { Providers } from "@/components/layout/Providers";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { PageCurtain } from "@/components/layout/PageCurtain";
+import { SiteChrome } from "@/components/layout/SiteChrome";
+import { SiteLoader } from "@/components/layout/SiteLoader";
 import { ScrollRefresher } from "@/components/layout/ScrollRefresher";
 import { SiteSearch } from "@/components/search/SiteSearch";
 import { AssistantModal } from "@/components/chat/AssistantModal";
-import { IntroStory } from "@/components/intro/IntroStory";
 
 /* الخط الوظيفي — المتن والبيانات */
 const cairo = Cairo({
@@ -61,13 +62,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="ar" dir="rtl" className={`${cairo.variable} ${lifta.variable} ${alQabas.variable}`}>
       <body>
         <Providers>
-          <Navbar />
+          <SiteChrome>
+            <Navbar />
+          </SiteChrome>
           <main>{children}</main>
-          <Footer />
-          <SiteSearch />
-          <AssistantModal />
-          <IntroStory />
-          <PageCurtain />
+          <SiteChrome>
+            <Footer />
+            <SiteSearch />
+            <AssistantModal />
+            <PageCurtain />
+            <SiteLoader />
+          </SiteChrome>
           <ScrollRefresher />
         </Providers>
       </body>

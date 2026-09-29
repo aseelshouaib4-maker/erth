@@ -59,7 +59,7 @@ export function EyeIndex() {
                   <MediaFrame media={item.media} ratio={item.media.ratio} tone="dark" unitSize="sm" interactive showLabel={false} />
                   <TransitionLink
                     href={`/eye/${item.id}`}
-                    className="mt-4 inline-flex h-11 w-full items-center justify-center gap-3 rounded-ui border border-gold bg-gold px-5 text-[0.75rem] font-medium tracking-[0.1em] text-night transition-colors duration-300 hover:bg-transparent hover:text-gold sm:w-auto"
+                    className="mt-4 inline-flex h-11 w-full items-center justify-center gap-3 rounded-ui border border-gold px-5 text-[0.75rem] font-medium tracking-[0.1em] text-gold transition-colors duration-300 hover:bg-gold hover:text-night focus-visible:bg-gold focus-visible:text-night active:bg-gold active:text-night sm:w-auto"
                   >
                     {eyeCopy.read}
                     <ArrowIcon className="h-4 w-4 transition-transform duration-500 ease-out-expo group-hover:-translate-x-1" />

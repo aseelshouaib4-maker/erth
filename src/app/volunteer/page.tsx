@@ -11,8 +11,6 @@ export default function VolunteerPage() {
       <PageHeader
         eyebrow={volunteerCopy.org}
         title={volunteerCopy.title}
-        index="07"
-        unit="rose"
         tone="paper"
         rule={false}
         description={volunteerCopy.lead}

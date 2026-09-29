@@ -26,7 +26,7 @@ export function ContactForm({ open, onOpen }: Props) {
       <div className="px-gutter mx-auto grid max-w-5xl gap-6 md:grid-cols-2 md:gap-8">
         {/* send us a document */}
         <section data-reveal className={cardClass}>
-          <Ornament unit="rose" className="w-9 text-gold" />
+          <Ornament unit="leaf" className="w-9 text-gold" />
           <p className="eyebrow mt-6">{contributeCopy.eyebrow}</p>
           <h2 className="text-heading mt-3 text-[1.35rem] text-blue md:text-[1.6rem]">شارك بوثيقة</h2>
           <p className="mt-4 max-w-sm text-[0.9rem] leading-[1.9] text-ink/70">
@@ -44,13 +44,13 @@ export function ContactForm({ open, onOpen }: Props) {
             >
               شارك معنا
             </Button>
-            <p className="mt-3 text-[0.78rem] tracking-[0.06em] text-ink/50">الشروط ثمّ استمارة الإرسال</p>
+            <p className="mt-3 text-[0.78rem] tracking-[0.06em] text-ink/65">الشروط ثمّ استمارة الإرسال</p>
           </div>
         </section>
 
         {/* join us */}
         <section data-reveal className={cardClass}>
-          <Ornament unit="star" className="w-9 text-gold" />
+          <Ornament unit="leaf" className="w-9 text-gold" />
           <p className="eyebrow mt-6">انضمّ إلى الفريق</p>
           <h2 className="text-heading mt-3 text-[1.35rem] text-blue md:text-[1.6rem]">تطوّع معنا</h2>
           <p className="mt-4 max-w-sm text-[0.9rem] leading-[1.9] text-ink/70">
@@ -68,7 +68,7 @@ export function ContactForm({ open, onOpen }: Props) {
             >
               املأ الاستمارة
             </Button>
-            <p className="mt-3 text-[0.78rem] tracking-[0.06em] text-ink/50">استمارة طلب تطوّع</p>
+            <p className="mt-3 text-[0.78rem] tracking-[0.06em] text-ink/65">استمارة طلب تطوّع</p>
           </div>
         </section>
       </div>

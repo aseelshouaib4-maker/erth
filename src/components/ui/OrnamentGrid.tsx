@@ -2,34 +2,15 @@ import { useId } from "react";
 import { cn } from "@/lib/utils";
 import { ORNAMENTS, type OrnamentUnit } from "./ornaments";
 
-type Cell = { unit: OrnamentUnit; filled: boolean };
-
-/** 4 × 4 rhythm reproduced from the identity guide tile («النظام كصورة»). */
-const TILE: Cell[][] = [
-  [
-    { unit: "rose", filled: true },
-    { unit: "star", filled: false },
-    { unit: "rose", filled: true },
-    { unit: "rose", filled: false },
-  ],
-  [
-    { unit: "star", filled: false },
-    { unit: "rose", filled: true },
-    { unit: "rose", filled: false },
-    { unit: "star", filled: true },
-  ],
-  [
-    { unit: "rose", filled: true },
-    { unit: "rose", filled: false },
-    { unit: "star", filled: true },
-    { unit: "rose", filled: false },
-  ],
-  [
-    { unit: "rose", filled: false },
-    { unit: "star", filled: true },
-    { unit: "rose", filled: false },
-    { unit: "rose", filled: true },
-  ],
+/**
+ * 4 × 4 rhythm reproduced from the identity guide tile («النظام كصورة»).
+ * الوحدات الثلاث تتناوب دون تكرار سطرٍ كاملاً، ولا تُدار (قاعدة النمو صعوداً).
+ */
+const TILE: OrnamentUnit[][] = [
+  ["leaf", "rose", "star", "rose"],
+  ["star", "leaf", "rose", "leaf"],
+  ["rose", "star", "leaf", "star"],
+  ["leaf", "rose", "star", "leaf"],
 ];
 
 export type OrnamentScale = 1 | 2 | 4; // ثلاثة مقاييس فقط: 1× و2× و4×
@@ -37,9 +18,14 @@ export type OrnamentScale = 1 | 2 | 4; // ثلاثة مقاييس فقط: 1× و
 type Props = {
   /** base cell size in px is 48 — scale multiplies it */
   scale?: OrnamentScale;
-  /** filled units colour */
+  /**
+   * حالة التكوين كلّه. قاعدة ٠٤ من الدليل: لا تُخلط المصمتة بالمحفورة،
+   * فالشبكة إمّا محفورة بالكامل أو مصمتة بالكامل.
+   */
+  variant?: "outline" | "solid";
+  /** لون الوحدات حين تكون مصمتة */
   filled?: string;
-  /** outline units colour */
+  /** لون الوحدات حين تكون محفورة */
   outline?: string;
   /** overall opacity */
   opacity?: number;
@@ -68,6 +54,7 @@ const fades: Record<NonNullable<Props["fade"]>, string | undefined> = {
  */
 export function OrnamentGrid({
   scale = 1,
+  variant = "outline",
   filled = "var(--color-gold)",
   outline = "var(--color-blue-54)",
   opacity = 0.06,
@@ -81,6 +68,7 @@ export function OrnamentGrid({
   const unit = cell * fill;
   const pad = (cell - unit) / 2;
   const mask = fades[fade];
+  const solid = variant === "solid";
 
   return (
     <svg
@@ -96,13 +84,13 @@ export function OrnamentGrid({
       <defs>
         <pattern id={id} width={size} height={size} patternUnits="userSpaceOnUse">
           {TILE.map((row, r) =>
-            row.map((c, k) => (
+            row.map((u, k) => (
               <g key={`${r}-${k}`} transform={`translate(${k * cell + pad} ${r * cell + pad}) scale(${unit / 100})`}>
                 <path
-                  d={ORNAMENTS[c.unit]}
-                  fill={c.filled ? filled : "none"}
-                  stroke={c.filled ? "none" : outline}
-                  strokeWidth={c.filled ? 0 : 1.5 / (unit / 100)}
+                  d={ORNAMENTS[u]}
+                  fill={solid ? filled : "none"}
+                  stroke={solid ? "none" : outline}
+                  strokeWidth={solid ? 0 : 1.5 / (unit / 100)}
                   fillRule="evenodd"
                 />
               </g>

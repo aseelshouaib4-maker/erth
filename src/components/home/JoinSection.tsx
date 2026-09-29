@@ -6,7 +6,6 @@ import { Ornament } from "@/components/ui/Ornament";
 import { OrnamentGrid } from "@/components/ui/OrnamentGrid";
 import { ArrowIcon } from "@/components/ui/Icons";
 import { TransitionLink } from "@/components/layout/TransitionLink";
-import type { OrnamentUnit } from "@/components/ui/ornaments";
 
 /**
  * آخر ما يقرؤه الزائر قبل التذييل: بابان فقط — أن يتطوّع، أو أن يشارك بالتوثيق.
@@ -17,8 +16,6 @@ import type { OrnamentUnit } from "@/components/ui/ornaments";
  */
 type Door = {
   id: string;
-  index: string;
-  unit: OrnamentUnit;
   eyebrow: string;
   title: string;
   body: string;
@@ -29,8 +26,6 @@ type Door = {
 const doors: Door[] = [
   {
     id: "volunteer",
-    index: "01",
-    unit: "star",
     eyebrow: "انضمّ إلى الفريق",
     title: "تطوّع معنا",
     body: "تفتح المؤسّسة باب التطوّع أمام أصحاب الاختصاصات والكفاءات والمهارات كافّة.",
@@ -39,8 +34,6 @@ const doors: Door[] = [
   },
   {
     id: "contribute",
-    index: "02",
-    unit: "rose",
     eyebrow: contributeCopy.eyebrow,
     title: contributeCopy.title,
     body: "عند كثيرين وثيقة أو صورة أو تسجيل لم يدخل الأرشيف بعد. أرسل ما عندك ويتولّى فريق التوثيق مراجعته.",
@@ -94,15 +87,11 @@ export function JoinSection() {
                 className="absolute inset-x-0 top-0 h-px origin-right scale-x-0 bg-gold transition-transform duration-700 ease-out-expo group-hover:scale-x-100 group-focus-visible:scale-x-100"
               />
 
-              <div className="relative flex items-start justify-between gap-6">
-                <Ornament
-                  unit={door.unit}
-                  className="w-10 text-gold transition-transform duration-700 ease-out-expo group-hover:-translate-y-1 group-hover:scale-110 group-focus-visible:-translate-y-1 group-focus-visible:scale-110"
-                />
-                <span className="text-display text-[2.6rem] leading-none tabular-nums text-ink/10 transition-colors duration-500 group-hover:text-gold/25">
-                  {door.index}
-                </span>
-              </div>
+              {/* «الورقتان» في البطاقتين، كما في صفحة «تواصل معنا» — بلا ترقيم */}
+              <Ornament
+                unit="leaf"
+                className="relative w-10 text-gold transition-transform duration-700 ease-out-expo group-hover:-translate-y-1 group-hover:scale-110 group-focus-visible:-translate-y-1 group-focus-visible:scale-110"
+              />
 
               <p className="eyebrow relative mt-8">{door.eyebrow}</p>
               <h3 className="text-heading relative mt-3 text-[1.5rem] text-blue transition-colors duration-300 md:text-[1.85rem]">

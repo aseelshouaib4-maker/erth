@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: "القصة" };
 export default function StoryPage() {
   return (
     <>
-      <PageHeader eyebrow="القصة" title={person.storyTitle} index="01" unit="rose" description="عشرة فصول تتبدّل صورها ومحطاتها مع التمرير." />
+      <PageHeader eyebrow="القصة" title={person.storyTitle} description="عشرة فصول تتبدّل صورها ومحطاتها مع التمرير." />
       <StoryScroller />
     </>
   );

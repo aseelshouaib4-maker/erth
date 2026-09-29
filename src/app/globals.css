@@ -6,26 +6,34 @@
    Brand faces are self-hosted through next/font/local (see layout.tsx).
 ------------------------------------------------------------------ */
 @theme {
-  /* الأرضية الغالبة */
+  /* ---- اللوحة اللونية المعتمدة (دليل الهوية، صفحة «اللون») ----
+     الأزرق #004C60 · Pantone 3005 C      الذهبي #C89600 · Pantone 117 C
+     بياض دافئ #F7F5F0 · رمادي بارد #DDE4E5 · خضرة باهتة #C3D2CE · أزرق عميق #01303C
+     النسبة: ٧٠٪ محايد · ٢٠٪ أزرق · ١٠٪ ذهبي — الذهبي نقطة ضوء لا مساحة. */
+
+  /* الأزرق — الأرضية الغالبة */
   --color-blue: #004c60;
-  /* سلّم الدرجات */
-  --color-blue-dark: #02313e;
+  /* أزرق عميق */
+  --color-blue-dark: #01303c;
+  /* سلّم درجات مشتقّ من الأزرق، للنصوص المخفّفة والحدود */
   --color-blue-70: #4a7e88;
   --color-blue-54: #87a8af;
   --color-blue-32: #b8cacb;
-  --color-blue-10: #dde3e1;
+  --color-blue-10: #dde4e5;
   /* الذهبي — نقطة ضوء */
-  --color-gold: #c99700;
-  --color-gold-soft: #d9b13a;
+  --color-gold: #c89600;
+  --color-gold-soft: #d9a81f;
   /* محايدات الوضوح */
-  --color-cream: #f6f4ef;
-  --color-mist: #dce4e6;
-  --color-night: #022a36;
-  /* ورق الأرشيف — من اللوحة الثانوية في الدليل */
-  --color-paper: #ede5d6;
-  --color-newsprint: #dcd3c0;
-  --color-kraft: #c8bba1;
-  --color-ink: #1b1916;
+  --color-cream: #f7f5f0;
+  --color-mist: #dde4e5;
+  /* درجة أعمق من الأزرق العميق، للتذييل والطبقات فوق الصفحة */
+  --color-night: #01262f;
+  /* المحايدات الثلاثة كأرضيات: البياض الدافئ ثم الرمادي البارد ثم الخضرة الباهتة */
+  --color-paper: #f7f5f0;
+  --color-newsprint: #dde4e5;
+  --color-kraft: #c3d2ce;
+  /* الحبر: الأزرق العميق، لا أسود — الدليل لا يحوي أسود */
+  --color-ink: #01303c;
 
   /* النظام الطباعي: لفتا (العناوين) · القبس (المساند) · القاهرة (المتن) */
   --font-display: var(--font-lifta), "Noto Kufi Arabic", sans-serif;
@@ -129,7 +137,11 @@ h4 {
  * طبقة، والطبقات تخسر أمام غير المطبَّق مهما علت نوعيّتها.
  */
 .no-focus-ring:focus-visible,
-.field:focus-visible {
+.field:focus-visible,
+/* حقلٌ داخل إطار «field»: الإطار يتلوّن بـ focus-within، فلا طوق للحقل نفسه */
+.field :is(input, textarea):focus-visible,
+/* حقلٌ داخل حاويةٍ تتلوّن بـ focus-within — شريط البحث، حقل المساعد، البحث في الموقع */
+[class*="focus-within:"] :is(input, textarea):focus-visible {
   outline: none;
 }
 
@@ -193,8 +205,17 @@ button {
   font-weight: 500;
   font-size: 0.72rem;
   letter-spacing: 0.1em; /* قاعدة التباعد: التسميات 0.10 */
-  color: var(--color-gold);
+  color: var(--eyebrow-ink, var(--color-gold));
   line-height: 1.4;
+}
+
+/*
+ * الذهبي على البياض الدافئ لا يُقرأ (٢٫٣:١)، والدليل نفسه يكتب تسمياته
+ * الصغيرة على الصفحات الفاتحة بالأزرق. فالتسمية تتبع أرضيّتها.
+ */
+.bg-paper,
+.bg-newsprint {
+  --eyebrow-ink: var(--color-blue);
 }
 
 @utility tracking-sep {
@@ -292,7 +313,9 @@ button {
   &:hover {
     border-color: color-mix(in srgb, var(--color-ink) 32%, transparent);
   }
-  &:focus {
+  /* focus-within: حين يكون «field» إطاراً لحقلٍ داخله (منتقي الاختصاصات) */
+  &:focus,
+  &:focus-within {
     outline: none;
     border-color: var(--color-blue);
     background: #fff;

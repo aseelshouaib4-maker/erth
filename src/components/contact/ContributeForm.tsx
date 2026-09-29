@@ -55,7 +55,7 @@ function Field({ field }: { field: ContributeField }) {
           className={cn("field mt-2.5", (field.type === "tel" || field.type === "url") && "text-start")}
         />
       )}
-      {field.hint && <span className="mt-2 block text-[0.72rem] leading-[1.7] text-ink/45">{field.hint}</span>}
+      {field.hint && <span className="mt-2 block text-[0.72rem] leading-[1.7] text-ink/65">{field.hint}</span>}
     </label>
   );
 }
@@ -69,7 +69,7 @@ function StepHead({ n, title, note }: { n: number; title: string; note?: string 
       </span>
       <span className="min-w-0">
         <span className="text-heading block text-[1.1rem] text-blue md:text-[1.25rem]">{title}</span>
-        {note && <span className="mt-1 block text-[0.78rem] leading-[1.7] text-ink/50">{note}</span>}
+        {note && <span className="mt-1 block text-[0.78rem] leading-[1.7] text-ink/65">{note}</span>}
       </span>
     </div>
   );
@@ -125,7 +125,7 @@ export function ContributeForm() {
         <h3 data-reveal className="text-heading mt-14 text-[1.25rem] text-blue md:text-[1.45rem]">
           {contributeCopy.formTitle}
         </h3>
-        <p data-reveal className="mt-2 text-[0.75rem] tracking-[0.08em] text-ink/45">{contributeCopy.required}</p>
+        <p data-reveal className="mt-2 text-[0.75rem] tracking-[0.08em] text-ink/65">{contributeCopy.required}</p>
 
         <form
           className="mt-8"
@@ -169,7 +169,7 @@ export function ContributeForm() {
               >
                 <UploadIcon className="mx-auto h-7 w-7 text-gold" />
                 <p className="text-heading mt-4 text-[1.05rem] text-blue">{contributeCopy.dropHint}</p>
-                <p className="mt-2 text-[0.82rem] leading-[1.8] text-ink/55">{contributeCopy.filesHint}</p>
+                <p className="mt-2 text-[0.82rem] leading-[1.8] text-ink/65">{contributeCopy.filesHint}</p>
                 <input
                   ref={inputRef}
                   id="materialFiles"
@@ -199,14 +199,14 @@ export function ContributeForm() {
                   {contributeCopy.chosen} · <span className="tabular-nums">{files.length}</span>
                 </p>
                 {files.length === 0 ? (
-                  <p className="mt-2 text-[0.8rem] text-ink/45">{contributeCopy.empty}</p>
+                  <p className="mt-2 text-[0.8rem] text-ink/65">{contributeCopy.empty}</p>
                 ) : (
                   <ul className="mt-3 divide-y divide-ink/10 rounded-ui border border-ink/12 bg-newsprint/25">
                     {files.map((file) => (
                       <li key={`${file.name}:${file.size}`} className="flex items-center justify-between gap-4 px-4 py-3">
                         <span className="min-w-0">
                           <span className="block truncate text-[0.9rem] text-ink">{file.name}</span>
-                          <span className="mt-0.5 block text-[0.68rem] tracking-[0.08em] text-ink/45">
+                          <span className="mt-0.5 block text-[0.68rem] tracking-[0.08em] text-ink/65">
                             {humanSize(file.size)}
                           </span>
                         </span>
@@ -214,7 +214,7 @@ export function ContributeForm() {
                           type="button"
                           onClick={() => removeFile(file.name, file.size)}
                           aria-label={`${contributeCopy.remove} — ${file.name}`}
-                          className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-ui border border-ink/20 text-ink/50 transition-colors duration-300 hover:border-blue hover:text-blue"
+                          className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-ui border border-ink/20 text-ink/65 transition-colors duration-300 hover:border-blue hover:text-blue"
                         >
                           <CloseIcon className="h-3.5 w-3.5" />
                         </button>
@@ -241,7 +241,7 @@ export function ContributeForm() {
             <Button type="submit" variant="paper-solid" size="lg" arrow>
               {contributeCopy.submit}
             </Button>
-            <p className="text-[0.72rem] leading-[1.8] tracking-[0.06em] text-ink/50" role="status" aria-live="polite">
+            <p className="text-[0.72rem] leading-[1.8] tracking-[0.06em] text-ink/65" role="status" aria-live="polite">
               {sent ? contributeCopy.sent : contributeCopy.uiNote}
             </p>
           </div>
