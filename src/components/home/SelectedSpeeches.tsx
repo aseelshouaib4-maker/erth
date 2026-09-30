@@ -25,7 +25,7 @@ export function SelectedSpeeches() {
     <section ref={ref} className="relative bg-blue-dark pb-24 pt-16 md:pb-36 md:pt-24">
       <div className="px-gutter">
         <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
-          <SectionHeader eyebrow="مختارات" title="خطابات" size="lg" />
+          <SectionHeader eyebrow="مختارات" title="خطابات" size="lg" display />
           <div data-reveal>
             <Button href="/archive?type=speech" variant="link" arrow>
               {ui.viewAll}

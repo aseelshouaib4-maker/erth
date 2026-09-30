@@ -57,6 +57,8 @@
   --animate-erth-ping: erth-ping 3.4s cubic-bezier(0, 0, 0.2, 1) infinite;
   --animate-erth-spin: erth-spin 54s linear infinite;
   --animate-erth-breathe: erth-breathe 6s ease-in-out infinite;
+  /* مؤشّر الكتابة: وميضٌ حادّ لا تلاشٍ، كمؤشّر محرّر نصوص */
+  --animate-erth-caret: erth-caret 1.05s steps(1, end) infinite;
 }
 
 :root {
@@ -77,6 +79,11 @@
 @keyframes erth-spin {
   to {
     transform: rotate(360deg);
+  }
+}
+@keyframes erth-caret {
+  50% {
+    opacity: 0;
   }
 }
 @keyframes erth-breathe {
@@ -199,6 +206,10 @@ button {
 /* محور الارتفاع: الشاشات القصيرة تضيق فيها الفاتحة حتى لا تلامس الشريط السفلي */
 @custom-variant short (@media (max-height: 820px));
 @custom-variant shorter (@media (max-height: 680px));
+
+/* ما يتوقّف على السكربت: الكتابة الحيّة تحتاجه، والنصّ الكامل يبقى لمن عطّله */
+@custom-variant js (@media (scripting: enabled));
+@custom-variant nojs (@media (scripting: none));
 
 @utility eyebrow {
   font-family: var(--font-body);

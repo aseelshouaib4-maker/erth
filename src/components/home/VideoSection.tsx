@@ -14,7 +14,7 @@ export function VideoSection() {
     <section id="media" ref={ref} className="relative bg-blue-dark py-24 md:py-36">
       <div className="px-gutter">
         <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
-          <SectionHeader eyebrow="من الأرشيف" title="فيديوهات" size="lg" />
+          <SectionHeader eyebrow="من الأرشيف" title="فيديوهات" size="lg" display />
           <div data-reveal>
             <Button href="/archive?type=video" variant="link" arrow>
               {ui.viewAll}
