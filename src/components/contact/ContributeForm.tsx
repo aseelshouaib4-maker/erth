@@ -1,9 +1,10 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useTransition } from "react";
 import {
   contributeAccept,
   contributeCopy,
+  contributeLimits,
   contributeRequirements,
   contributeSteps,
   contributorFields,
@@ -13,6 +14,8 @@ import {
   type ContributeField,
 } from "@/data/contribute";
 import { brand } from "@/data/site";
+import { submitContribution } from "@/lib/actions/submissions";
+import { HONEYPOT_FIELD, IDLE, type SubmitState } from "@/lib/actions/submit-state";
 import { useReveal } from "@/hooks/useReveal";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
@@ -76,25 +79,56 @@ function StepHead({ n, title, note }: { n: number; title: string; note?: string 
 }
 
 /**
- * «شارك بالتوثيق»: الملفّات تُعرض ولا تُرفع — لا خادم خلف النموذج بعد.
+ * «شارك بالتوثيق»: the visitor's files travel with the form to the server,
+ * which files them in the admin inbox.
  */
 export function ContributeForm() {
   const ref = useReveal<HTMLDivElement>();
   const [files, setFiles] = useState<File[]>([]);
-  const [sent, setSent] = useState(false);
+  const [state, setState] = useState<SubmitState>(IDLE);
+  const [fileError, setFileError] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const addFiles = (list: FileList | null) => {
     if (!list?.length) return;
-    setSent(false);
-    setFiles((current) => {
-      const seen = new Set(current.map((f) => `${f.name}:${f.size}`));
-      const added = Array.from(list).filter((f) => !seen.has(`${f.name}:${f.size}`));
-      return [...current, ...added];
+    setState(IDLE);
+    const seen = new Set(files.map((f) => `${f.name}:${f.size}`));
+    const next = [...files, ...Array.from(list).filter((f) => !seen.has(`${f.name}:${f.size}`))];
+    /* the server holds the same limits; saying so here saves a long upload that would be refused */
+    if (next.length > contributeLimits.maxFiles) return setFileError(contributeCopy.tooMany);
+    if (next.reduce((sum, f) => sum + f.size, 0) > contributeLimits.maxTotalBytes) return setFileError(contributeCopy.tooLarge);
+    setFileError(null);
+    setFiles(next);
+  };
+
+  const submit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    /* dropped files never reach the input, so the list in state is what gets sent */
+    data.delete("materialFiles");
+    files.forEach((file) => data.append("materialFiles", file));
+    startTransition(async () => {
+      const result = await submitContribution(IDLE, data);
+      setState(result);
+      if (result.status === "success") {
+        form.reset();
+        setFiles([]);
+      }
     });
   };
 
+  const status = pending
+    ? contributeCopy.sending
+    : state.status === "success"
+      ? contributeCopy.sent
+      : state.status === "error"
+        ? state.message
+        : null;
+
   const removeFile = (name: string, size: number) => {
+    setFileError(null);
     setFiles((current) => current.filter((f) => !(f.name === name && f.size === size)));
   };
 
@@ -127,13 +161,16 @@ export function ContributeForm() {
         </h3>
         <p data-reveal className="mt-2 text-[0.75rem] tracking-[0.08em] text-ink/65">{contributeCopy.required}</p>
 
-        <form
-          className="mt-8"
-          onSubmit={(e) => {
-            e.preventDefault();
-            setSent(true);
-          }}
-        >
+        <form className="relative mt-8" onSubmit={submit} aria-busy={pending}>
+          {/* left empty by people; filled by bots */}
+          <input
+            type="text"
+            name={HONEYPOT_FIELD}
+            tabIndex={-1}
+            autoComplete="off"
+            aria-hidden="true"
+            className="pointer-events-none absolute h-px w-px opacity-0"
+          />
           {/* ١ — مَن أنت */}
           <fieldset>
             <legend className="sr-only">{contributeSteps[0].title}</legend>
@@ -198,6 +235,11 @@ export function ContributeForm() {
                 <p className="eyebrow text-ink/60" aria-live="polite">
                   {contributeCopy.chosen} · <span className="tabular-nums">{files.length}</span>
                 </p>
+                {fileError && (
+                  <p className="mt-2 text-[0.8rem] text-red-800" role="alert">
+                    {fileError}
+                  </p>
+                )}
                 {files.length === 0 ? (
                   <p className="mt-2 text-[0.8rem] text-ink/65">{contributeCopy.empty}</p>
                 ) : (
@@ -238,11 +280,18 @@ export function ContributeForm() {
           </fieldset>
 
           <div data-reveal className="mt-12 flex flex-wrap items-center gap-6 border-t border-ink/12 pt-10">
-            <Button type="submit" variant="paper-solid" size="lg" arrow>
+            <Button type="submit" variant="paper-solid" size="lg" arrow disabled={pending}>
               {contributeCopy.submit}
             </Button>
-            <p className="text-[0.72rem] leading-[1.8] tracking-[0.06em] text-ink/65" role="status" aria-live="polite">
-              {sent ? contributeCopy.sent : contributeCopy.uiNote}
+            <p
+              className={cn(
+                "text-[0.78rem] leading-[1.8] tracking-[0.04em]",
+                state.status === "error" && !pending ? "text-red-800" : "text-ink/70",
+              )}
+              role="status"
+              aria-live="polite"
+            >
+              {status}
             </p>
           </div>
         </form>

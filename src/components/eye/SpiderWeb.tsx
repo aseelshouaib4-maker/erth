@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { eyeCopy } from "@/data/eye";
 import { gsap, useGSAP, MEDIA } from "@/lib/gsap";
+import type { TextValue } from "@/lib/placeholder";
 import { Slot } from "@/components/ui/Placeholders";
 import { ArrowDownIcon } from "@/components/ui/Icons";
 
@@ -76,7 +77,7 @@ function Spider({ scale }: { scale: number }) {
  * scrolls: it trembles, threads snap, and the whole sheet falls away with the
  * spiders still on it. Only transforms and dash offsets are animated.
  */
-export function SpiderWeb() {
+export function SpiderWeb({ lead }: { lead: TextValue }) {
   const sectionRef = useRef<HTMLElement>(null);
 
   useGSAP(
@@ -259,7 +260,7 @@ export function SpiderWeb() {
             {eyeCopy.title}
           </h1>
           <p data-eye-anim className="mx-auto mt-4 max-w-md text-[0.95rem] leading-[1.9] text-blue-32">
-            <Slot value={eyeCopy.lead} />
+            <Slot value={lead} />
           </p>
         </div>
 

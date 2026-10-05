@@ -1,11 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { introSteps } from "@/data/intro";
-import { person, stageById } from "@/data/person";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { introSteps as allSteps } from "@/data/intro";
 import { brand, ui } from "@/data/site";
 import { gsap, SplitText, useGSAP } from "@/lib/gsap";
 import { cn, markIntroSeen, prefersReducedMotion } from "@/lib/utils";
+import { useSiteContent } from "@/components/content/SiteContent";
 import { useUI } from "@/components/layout/Providers";
 import { emit, INTRO_CLOSED } from "@/components/layout/transitions";
 import { OrnamentGrid } from "@/components/ui/OrnamentGrid";
@@ -13,7 +13,6 @@ import { Wordmark } from "@/components/ui/Brand";
 import { ArrowBackIcon, ArrowIcon, CloseIcon } from "@/components/ui/Icons";
 import { IntroSlide } from "./IntroSlide";
 
-const total = introSteps.length;
 const k = () => (prefersReducedMotion() ? 0 : 1);
 
 /* ---------- slide choreography ---------- */
@@ -60,6 +59,13 @@ function animateOut(slide: HTMLElement, dir: 1 | -1) {
 
 export function IntroOverlay() {
   const { hideIntro } = useUI();
+  const { person, stageById } = useSiteContent();
+  /* chapters whose stage is not published are skipped, not shown empty */
+  const introSteps = useMemo(
+    () => allSteps.filter((s) => s.kind !== "chapter" || stageById(s.stageId) !== undefined),
+    [stageById],
+  );
+  const total = introSteps.length;
   const [step, setStep] = useState(0);
   const stepRef = useRef(0);
   const busy = useRef(false);
@@ -82,7 +88,7 @@ export function IntroOverlay() {
       .timeline({ onComplete: () => (busy.current = false) })
       .add(animateOut(out, dir))
       .add(animateIn(inn, dir), "-=0.1");
-  }, []);
+  }, [total]);
 
   const close = useCallback(() => {
     if (busy.current) return;
@@ -169,7 +175,7 @@ export function IntroOverlay() {
       window.removeEventListener("touchstart", onTouchStart);
       window.removeEventListener("touchend", onTouchEnd);
     };
-  }, [goTo, close]);
+  }, [goTo, close, introSteps]);
 
   /* الشريط السفلي يُقاس، ويُنشر ارتفاعه كمتغيّر — فلا تنزل شريحةٌ تحته مهما قصر العرض */
   const barRef = useRef<HTMLDivElement>(null);

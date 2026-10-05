@@ -1,14 +1,15 @@
+import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { isSlot, type MediaPlaceholder, type TextSlot } from "@/lib/placeholder";
+import { isSlot, type MediaRef, type TextSlot, type TextValue } from "@/lib/placeholder";
 import { Ornament } from "./Ornament";
 import { type OrnamentUnit } from "./ornaments";
 import { PlayIcon } from "./Icons";
 
 /* ------------------------------------------------------------------
-   Text placeholders — visibly slots, never real copy.
+   Text — real copy, or a visible slot until the copy arrives.
 ------------------------------------------------------------------ */
 
-export function Slot({ value, className }: { value: TextSlot | string; className?: string }) {
+export function Slot({ value, className }: { value: TextValue; className?: string }) {
   if (!isSlot(value)) return <span className={className}>{value}</span>;
   return (
     <span className={cn("ph-text", className)} title="نص بديل — يُستبدل بالمحتوى الفعلي">
@@ -17,8 +18,18 @@ export function Slot({ value, className }: { value: TextSlot | string; className
   );
 }
 
-/** Long-form placeholder: slot label plus bars that indicate length. */
-export function ParagraphSlot({ value, lines = 3, className }: { value: TextSlot; lines?: number; className?: string }) {
+/**
+ * Long-form text. Real copy keeps its line breaks; a slot shows its label plus
+ * bars that indicate the expected length.
+ */
+export function ParagraphSlot({ value, lines = 3, className }: { value: TextValue; lines?: number; className?: string }) {
+  if (!isSlot(value)) {
+    return <p className={cn("whitespace-pre-line leading-[1.9] text-cream/85", className)}>{value}</p>;
+  }
+  return <ParagraphPlaceholder value={value} lines={lines} className={className} />;
+}
+
+function ParagraphPlaceholder({ value, lines, className }: { value: TextSlot; lines: number; className?: string }) {
   const widths = ["100%", "92%", "76%", "88%", "60%"];
   return (
     <div className={cn("space-y-3", className)} aria-label={`نص بديل: ${value.label}`}>
@@ -36,14 +47,14 @@ export function ParagraphSlot({ value, lines = 3, className }: { value: TextSlot
    Media placeholders
 ------------------------------------------------------------------ */
 
-const kindLabel: Record<MediaPlaceholder["kind"], string> = {
+const kindLabel: Record<MediaRef["kind"], string> = {
   image: "صورة",
   video: "فيديو",
   audio: "صوت",
   document: "وثيقة",
 };
 
-const unitByKind: Record<MediaPlaceholder["kind"], OrnamentUnit> = {
+const unitByKind: Record<MediaRef["kind"], OrnamentUnit> = {
   image: "rose",
   video: "star",
   audio: "rose",
@@ -51,7 +62,7 @@ const unitByKind: Record<MediaPlaceholder["kind"], OrnamentUnit> = {
 };
 
 type FrameProps = {
-  media: MediaPlaceholder;
+  media: MediaRef;
   /** width / height; omit when `fill` */
   ratio?: number;
   /** stretch to the parent (parent must be relative) */
@@ -62,6 +73,9 @@ type FrameProps = {
   showLabel?: boolean;
   /** enable hover treatment (scale + gold frame) */
   interactive?: boolean;
+  /** `sizes` for the real image, once there is one */
+  sizes?: string;
+  priority?: boolean;
   className?: string;
   children?: React.ReactNode;
 };
@@ -76,9 +90,18 @@ const tones = {
 
 const unitSizes = { sm: "w-10 md:w-12", md: "w-16 md:w-20", lg: "w-24 md:w-32" };
 
+function PlayBadge() {
+  return (
+    <span className="absolute flex h-12 w-12 items-center justify-center rounded-full border border-gold/70 text-gold transition-all duration-500 group-hover/frame:scale-110 group-hover/frame:bg-gold group-hover/frame:text-night md:h-14 md:w-14">
+      <PlayIcon className="h-5 w-5 -scale-x-100" />
+    </span>
+  );
+}
+
 /**
- * A media slot rendered as a tile on the blue ground: fine grid, one ornament
- * unit, a small caption naming what belongs there. Video adds a play control.
+ * A media tile on the blue ground. With a real image it shows the picture in
+ * its hairline frame; until then a fine grid, one ornament unit and a small
+ * caption naming what belongs there. Video adds a play control either way.
  */
 export function MediaFrame({
   media,
@@ -88,11 +111,14 @@ export function MediaFrame({
   unitSize = "md",
   showLabel = true,
   interactive,
+  sizes = "(min-width: 1024px) 50vw, 100vw",
+  priority,
   className,
   children,
 }: FrameProps) {
   const aspect = ratio ?? media.ratio ?? 4 / 3;
   const unit = unitByKind[media.kind];
+  const image = media.image;
   return (
     <div
       className={cn(
@@ -105,34 +131,56 @@ export function MediaFrame({
       )}
       style={fill ? undefined : { aspectRatio: `${aspect}` }}
       role="img"
-      aria-label={`${kindLabel[media.kind]} بديلة: ${media.label}`}
+      aria-label={image ? image.alt || media.label : `${kindLabel[media.kind]} بديلة: ${media.label}`}
     >
+      {image ? (
+        <div
+          className={cn(
+            "absolute inset-0 transition-transform duration-700 ease-[var(--ease-out-expo)]",
+            interactive && "group-hover/frame:scale-105",
+          )}
+        >
+          <Image
+            src={image.src}
+            alt=""
+            fill
+            sizes={sizes}
+            priority={priority}
+            className="object-cover"
+            style={{ objectPosition: image.focus ?? "center" }}
+          />
+          {media.kind === "video" && (
+            <span className="absolute inset-0 flex items-center justify-center bg-night/25">
+              <PlayBadge />
+            </span>
+          )}
+        </div>
+      ) : (
+        <div
+          className={cn(
+            "absolute inset-0 flex items-center justify-center transition-transform duration-700 ease-[var(--ease-out-expo)]",
+            interactive && "group-hover/frame:scale-105",
+          )}
+        >
+          {media.kind === "video" ? (
+            <span className="relative flex items-center justify-center">
+              <Ornament unit={unit} variant="outline" className={cn(unitSizes[unitSize], "opacity-40")} />
+              <PlayBadge />
+            </span>
+          ) : media.kind === "audio" ? (
+            <Waveform />
+          ) : media.kind === "document" ? (
+            <DocumentSheet />
+          ) : (
+            <Ornament unit={unit} variant="outline" className={cn(unitSizes[unitSize], "opacity-50")} />
+          )}
+        </div>
+      )}
+
       {/* hairline frame */}
       <span className="pointer-events-none absolute inset-3 border border-current/35 transition-colors duration-500 group-hover/frame:border-gold/60" />
 
-      <div
-        className={cn(
-          "absolute inset-0 flex items-center justify-center transition-transform duration-700 ease-[var(--ease-out-expo)]",
-          interactive && "group-hover/frame:scale-105",
-        )}
-      >
-        {media.kind === "video" ? (
-          <span className="relative flex items-center justify-center">
-            <Ornament unit={unit} variant="outline" className={cn(unitSizes[unitSize], "opacity-40")} />
-            <span className="absolute flex h-12 w-12 items-center justify-center rounded-full border border-gold/70 text-gold transition-all duration-500 group-hover/frame:scale-110 group-hover/frame:bg-gold group-hover/frame:text-night md:h-14 md:w-14">
-              <PlayIcon className="h-5 w-5 -scale-x-100" />
-            </span>
-          </span>
-        ) : media.kind === "audio" ? (
-          <Waveform />
-        ) : media.kind === "document" ? (
-          <DocumentSheet />
-        ) : (
-          <Ornament unit={unit} variant="outline" className={cn(unitSizes[unitSize], "opacity-50")} />
-        )}
-      </div>
-
-      {showLabel && (
+      {showLabel && !image && (
         <span className="absolute bottom-4 start-4 end-4 flex items-end justify-between gap-3 text-[0.62rem] font-medium tracking-[0.1em] text-current/80">
           <span className="truncate">
             {kindLabel[media.kind]} · {media.label}

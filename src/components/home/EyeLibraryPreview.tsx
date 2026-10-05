@@ -1,16 +1,12 @@
 "use client";
 
-import { eyeItems } from "@/data/eye";
-import { libraryItems } from "@/data/library";
 import { ui } from "@/data/site";
 import { useReveal } from "@/hooks/useReveal";
+import type { Article, LibraryItem } from "@/lib/content/types";
 import { TransitionLink } from "@/components/layout/TransitionLink";
 import { Button } from "@/components/ui/Button";
 import { MediaFrame, Slot } from "@/components/ui/Placeholders";
 import { Ornament } from "@/components/ui/Ornament";
-
-const articles = eyeItems.slice(0, 3);
-const books = libraryItems.slice(0, 4);
 
 /** the two columns share this head, so their titles and buttons sit on one line */
 function ColumnHead({ eyebrow, title }: { eyebrow: string; title: string }) {
@@ -26,7 +22,7 @@ function ColumnHead({ eyebrow, title }: { eyebrow: string; title: string }) {
 }
 
 /** Two doors on one band of archive paper: «عين» for writing about him, «دار النشر» for the volumes. */
-export function EyeLibraryPreview() {
+export function EyeLibraryPreview({ articles, books }: { articles: Article[]; books: LibraryItem[] }) {
   const ref = useReveal<HTMLElement>();
 
   return (
@@ -68,8 +64,8 @@ export function EyeLibraryPreview() {
 
           <div className="mt-10 grid grid-cols-4 gap-4">
             {books.map((book) => (
-              <TransitionLink key={book.id} href="/library" data-reveal className="group block">
-                <MediaFrame media={book.media} ratio={3 / 4} tone="paper" unitSize="sm" showLabel={false} interactive />
+              <TransitionLink key={book.id} href={`/library#${book.id}`} data-reveal className="group block">
+                <MediaFrame media={book.media} ratio={3 / 4} tone="paper" unitSize="sm" showLabel={false} interactive sizes="(min-width: 1024px) 12vw, 25vw" />
                 <p className="mt-2 truncate text-[0.7rem] text-ink/70 transition-colors group-hover:text-blue">
                   <Slot value={book.title} className="text-ink/60" />
                 </p>

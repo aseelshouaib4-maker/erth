@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import {
   academicFields,
   availabilityTimes,
@@ -23,8 +23,10 @@ import {
   volunteerModes,
 } from "@/data/volunteer";
 import { useReveal } from "@/hooks/useReveal";
+import { submitVolunteer } from "@/lib/actions/submissions";
+import { HONEYPOT_FIELD, IDLE, type SubmitState } from "@/lib/actions/submit-state";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
-import { Slot } from "@/components/ui/Placeholders";
 import { SpecialtyPicker } from "./SpecialtyPicker";
 
 /** التسمية فوق الحقل، والنجمة ذهبيّة — كاستمارة «شارك بالتوثيق». */
@@ -98,10 +100,35 @@ function SectionBlock({ step, children }: { step: (typeof volunteerSteps)[number
   );
 }
 
-/** Visual form only — nothing is submitted anywhere yet. */
+/** The volunteer application. Sent to the server and filed in the admin inbox. */
 export function VolunteerForm() {
   const ref = useReveal<HTMLDivElement>({ stagger: 0.07 });
-  const [sent, setSent] = useState(false);
+  const [state, setState] = useState<SubmitState>(IDLE);
+  const [pending, startTransition] = useTransition();
+  /* the picker keeps its choices in state, so a fresh key empties it after success */
+  const [pickerKey, setPickerKey] = useState(0);
+
+  const submit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    startTransition(async () => {
+      const result = await submitVolunteer(IDLE, data);
+      setState(result);
+      if (result.status === "success") {
+        form.reset();
+        setPickerKey((k) => k + 1);
+      }
+    });
+  };
+
+  const status = pending
+    ? volunteerCopy.sending
+    : state.status === "success"
+      ? volunteerCopy.sent
+      : state.status === "error"
+        ? state.message
+        : null;
 
   return (
     <div ref={ref} className="px-gutter bg-paper pb-24 pt-10 md:pb-32">
@@ -109,13 +136,16 @@ export function VolunteerForm() {
         {volunteerRequired}
       </p>
 
-      <form
-        className="mx-auto max-w-4xl space-y-12"
-        onSubmit={(e) => {
-          e.preventDefault();
-          setSent(true);
-        }}
-      >
+      <form className="relative mx-auto max-w-4xl space-y-12" onSubmit={submit} aria-busy={pending}>
+        {/* left empty by people; filled by bots */}
+        <input
+          type="text"
+          name={HONEYPOT_FIELD}
+          tabIndex={-1}
+          autoComplete="off"
+          aria-hidden="true"
+          className="pointer-events-none absolute h-px w-px opacity-0"
+        />
         {/* أولاً */}
         <SectionBlock step={volunteerSteps[0]}>
           <div className="grid gap-8 sm:grid-cols-2">
@@ -160,7 +190,7 @@ export function VolunteerForm() {
             <div>
               <FieldLabel label="الاختصاص العلمي الدقيق" />
               <p className="mb-4 mt-2 max-w-2xl text-[0.82rem] leading-[1.9] text-ink/60">{specialtyIntro}</p>
-              <SpecialtyPicker />
+              <SpecialtyPicker key={pickerKey} />
               <p className="mt-4 max-w-2xl text-[0.78rem] leading-[1.8] text-ink/65">{specialtyNote}</p>
             </div>
 
@@ -289,14 +319,21 @@ export function VolunteerForm() {
 
         <div data-reveal className="border-t border-ink/12 pt-10">
           <p className="text-[0.85rem] leading-[1.9] text-ink/65">
-            {volunteerCopy.submitNote} <Slot value={volunteerCopy.submitEmail} />
+            {volunteerCopy.submitNote}
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-6">
-            <Button type="submit" variant="paper-solid" size="lg" arrow>
+            <Button type="submit" variant="paper-solid" size="lg" arrow disabled={pending}>
               {volunteerCopy.submit}
             </Button>
-            <p className="text-[0.7rem] leading-[1.8] tracking-[0.08em] text-ink/65" role="status" aria-live="polite">
-              {sent ? volunteerCopy.sent : volunteerCopy.uiNote}
+            <p
+              className={cn(
+                "text-[0.78rem] leading-[1.8] tracking-[0.04em]",
+                state.status === "error" && !pending ? "text-red-800" : "text-ink/70",
+              )}
+              role="status"
+              aria-live="polite"
+            >
+              {status}
             </p>
           </div>
           <p className="text-heading mt-12 text-[1.05rem] text-gold">{volunteerCopy.thanks}</p>

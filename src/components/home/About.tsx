@@ -1,14 +1,14 @@
 "use client";
 
-import { about } from "@/data/about";
 import { brand } from "@/data/site";
 import { useReveal } from "@/hooks/useReveal";
+import type { About as AboutContent } from "@/lib/content/types";
 import { Logo } from "@/components/ui/Brand";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { TypedParagraphs } from "@/components/ui/TypedParagraphs";
 
 /** «من نحن» — text reproduced exactly as supplied. */
-export function About() {
+export function About({ about }: { about: AboutContent }) {
   const ref = useReveal<HTMLElement>();
   return (
     <section id="about" ref={ref} className="relative bg-blue py-24 md:py-36">

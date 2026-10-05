@@ -2,10 +2,11 @@
 
 import { forwardRef, memo } from "react";
 import type { IntroStep } from "@/data/intro";
-import { person, stageById, type Stage } from "@/data/person";
 import { brand, ui } from "@/data/site";
+import type { Stage } from "@/lib/content/types";
 import { cn } from "@/lib/utils";
 import { Logo, Wordmark } from "@/components/ui/Brand";
+import { useSiteContent } from "@/components/content/SiteContent";
 import { MediaFrame, Slot } from "@/components/ui/Placeholders";
 import { Portrait } from "@/components/ui/Portrait";
 import { Ornament } from "@/components/ui/Ornament";
@@ -53,6 +54,7 @@ function ChapterYear({ stage, className }: { stage: Stage; className?: string })
 /** One full-screen step of the first-visit story. Animation hooks: data-media / data-anim / data-title / data-late. */
 export const IntroSlide = memo(
   forwardRef<HTMLDivElement, Props>(function IntroSlide({ step, index, goTo, onClose }, ref) {
+    const { person, stageById } = useSiteContent();
     const onNext = () => goTo(index + 1);
 
     if (step.kind === "title") {
@@ -118,7 +120,9 @@ export const IntroSlide = memo(
       );
     }
 
-    const stage = stageById(step.stageId)!;
+    const stage = stageById(step.stageId);
+    // the overlay only passes chapters whose stage is published; this keeps the slide inert otherwise
+    if (!stage) return <div ref={ref} className={base} />;
     // the story shows photographs only; clips and documents live in the archive
     const images = stage.media.filter((m) => m.kind === "image");
     const primary = images[0] ?? stage.media[0];

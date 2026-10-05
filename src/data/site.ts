@@ -26,33 +26,6 @@ export const nav: NavItem[] = [
  */
 export const paperRoutes = ["/contact"];
 
-/**
- * وسائل التواصل التي تظهر في التذييل.
- *
- * اترك القيمة فارغة ريثما يصل الحساب أو الرقم: يظهر عندها الرمز بلا رابط،
- * بدل أن يقود الزائر إلى صفحة لا وجود لها. ضع الرابط الكامل هنا وينشط وحده.
- */
-export const contact: { email: string; phone: string; whatsapp: string } = {
-  email: "erth@gmail.com",
-  /** مع رمز البلد — مثال: "+961 1 234 567" */
-  phone: "",
-  /** رقم الواتساب إن اختلف عن الهاتف */
-  whatsapp: "",
-};
-
-export type SocialId = "facebook" | "instagram" | "x" | "youtube" | "telegram" | "whatsapp";
-
-export type Social = { id: SocialId; label: string; href: string };
-
-export const socials: Social[] = [
-  { id: "facebook", label: "فيسبوك", href: "" },
-  { id: "instagram", label: "إنستغرام", href: "" },
-  { id: "x", label: "إكس", href: "" },
-  { id: "youtube", label: "يوتيوب", href: "" },
-  { id: "telegram", label: "تلغرام", href: "" },
-  { id: "whatsapp", label: "واتساب", href: "" },
-];
-
 export const ui = {
   chatButton: "ابحث / اسأل",
   assistant: "إسأل المساعد الذّكيّ",

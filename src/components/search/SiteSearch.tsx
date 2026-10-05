@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { searchSite } from "@/data/search";
+import { useEffect, useRef, useState } from "react";
 import { ui } from "@/data/site";
+import { searchAction } from "@/lib/actions/search";
+import type { SearchHit } from "@/lib/content/types";
 import { cn } from "@/lib/utils";
 import { Modal } from "@/components/ui/Modal";
 import { ArrowIcon, CloseIcon, SearchIcon } from "@/components/ui/Icons";
@@ -12,14 +13,39 @@ import { TransitionLink } from "@/components/layout/TransitionLink";
 
 const SUGGESTIONS = ["النجف", "بعلبك", "1992", "الأرشيف", "دار النشر"];
 
+/** wait for a pause in typing before asking the server */
+const DEBOUNCE_MS = 200;
+
+type Results = { query: string; hits: SearchHit[] };
+
 /** Plain search over the site's own words — separate from the assistant. */
 export function SiteSearch() {
   const { searchOpen, closeSearch } = useUI();
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const hits = useMemo(() => searchSite(query), [query]);
-  const asked = query.trim().length > 0;
+  const [results, setResults] = useState<Results>({ query: "", hits: [] });
+  const latest = useRef(0);
+
+  const trimmed = query.trim();
+  const asked = trimmed.length > 0;
+  /* results for an older query stay on screen until the new ones land */
+  const settled = results.query === trimmed;
+  const hits = results.hits;
+
+  useEffect(() => {
+    if (!trimmed) return;
+    const request = ++latest.current;
+    const timer = window.setTimeout(async () => {
+      try {
+        const found = await searchAction(trimmed);
+        if (request === latest.current) setResults({ query: trimmed, hits: found });
+      } catch {
+        if (request === latest.current) setResults({ query: trimmed, hits: [] });
+      }
+    }, DEBOUNCE_MS);
+    return () => window.clearTimeout(timer);
+  }, [trimmed]);
 
   useEffect(() => {
     if (!searchOpen) return;
@@ -80,6 +106,10 @@ export function SiteSearch() {
                 ))}
               </div>
             </div>
+          ) : !settled && hits.length === 0 ? (
+            <p className="eyebrow py-16 text-center text-blue-54" aria-live="polite">
+              جارٍ البحث…
+            </p>
           ) : hits.length === 0 ? (
             <div className="flex flex-col items-center gap-5 py-16 text-center">
               <Ornament unit="star" variant="outline" className="w-12 text-blue-54" />

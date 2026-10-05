@@ -17,7 +17,12 @@ type Common = {
 };
 
 type AsLink = Common & { href: string; onClick?: React.MouseEventHandler<HTMLAnchorElement> };
-type AsButton = Common & { href?: undefined; onClick?: React.MouseEventHandler<HTMLButtonElement>; type?: "button" | "submit" };
+type AsButton = Common & {
+  href?: undefined;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
+  type?: "button" | "submit";
+  disabled?: boolean;
+};
 
 const variants: Record<Variant, string> = {
   outline: "border border-gold text-gold hover:bg-gold hover:text-night focus-visible:bg-gold focus-visible:text-night active:bg-gold active:text-night",
@@ -44,7 +49,7 @@ export function Button(props: AsLink | AsButton) {
     "aria-label": props["aria-label"],
   };
   const classes = cn(
-    "group inline-flex items-center justify-center gap-3 font-body font-medium tracking-[0.1em] transition-colors duration-300",
+    "group inline-flex items-center justify-center gap-3 font-body font-medium tracking-[0.1em] transition-colors duration-300 disabled:cursor-wait disabled:opacity-60",
     variant !== "link" && cn(sizes[size], "rounded-ui shadow-ui"),
     variants[variant],
     className,
@@ -62,9 +67,9 @@ export function Button(props: AsLink | AsButton) {
       </TransitionLink>
     );
   }
-  const { onClick, type = "button" } = props as AsButton;
+  const { onClick, type = "button", disabled } = props as AsButton;
   return (
-    <button type={type} className={classes} onClick={onClick} {...aria}>
+    <button type={type} className={classes} onClick={onClick} disabled={disabled} {...aria}>
       {inner}
     </button>
   );

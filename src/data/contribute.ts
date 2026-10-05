@@ -23,8 +23,10 @@ export const contributeCopy = {
   remove: "إزالة",
   empty: "لم يُختَر ملفّ بعد",
   submit: "أرسل المادّة",
-  uiNote: "نموذج واجهة — لا يُرسل إلى خادم بعد، والملفّات لا تغادر جهازك.",
-  sent: "تمّ استلام المادّة محليًّا — واجهة فقط، لم تُربط بخادم بعد.",
+  sending: "جارٍ الإرسال… قد يستغرق رفع الملفّات بعض الوقت.",
+  sent: "وصلت المادّة. شكراً لك — يراجعها فريق التوثيق ويتواصل معك.",
+  tooMany: "يمكن إرسال عشرة ملفّات على الأكثر في المرّة الواحدة.",
+  tooLarge: "مجموع الملفّات يتجاوز 100 ميغابايت. للملفّات الكبيرة استعمل حقل الرابط.",
 } as const;
 
 /** ما يقبله حقل الرفع: وثائق وصور وصوت. */
@@ -116,3 +118,19 @@ export const linkFields: ContributeField[] = [
     hint: "إن كانت الملفّات كبيرة، ارفعها إلى خدمة تخزين وضع الرابط هنا.",
   },
 ];
+
+/** What the server accepts with one contribution. The action enforces these; the form warns early. */
+export const contributeLimits = {
+  maxFiles: 10,
+  maxTotalBytes: 100 * 1024 * 1024,
+} as const;
+
+const contributeLabels: Record<string, string> = Object.fromEntries(
+  [...contributorFields, ...materialFields, ...linkFields].map((f) => [f.id, f.label]),
+);
+
+export const contributeFieldLabel = (name: string): string | undefined => contributeLabels[name];
+
+export const contributeRequiredFields = [...contributorFields, ...materialFields, ...linkFields]
+  .filter((f) => f.required)
+  .map((f) => f.id);

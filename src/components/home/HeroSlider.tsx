@@ -2,26 +2,40 @@
 
 import Image from "next/image";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { heroSlides, SLIDE_DURATION } from "@/data/quotes";
-import { person } from "@/data/person";
 import { ui } from "@/data/site";
 import { gsap, useGSAP } from "@/lib/gsap";
+import { media, slot } from "@/lib/placeholder";
+import type { HeroSlide } from "@/lib/content/types";
 import { prefersReducedMotion } from "@/lib/utils";
+import { useSiteContent } from "@/components/content/SiteContent";
 import { useUI } from "@/components/layout/Providers";
 import { OrnamentGrid } from "@/components/ui/OrnamentGrid";
 import { MediaFrame, Slot } from "@/components/ui/Placeholders";
 import { ArrowBackIcon, ArrowIcon } from "@/components/ui/Icons";
 import { StartStory } from "./StartStory";
 
-const total = heroSlides.length;
+/** milliseconds each slide holds before the next one crossfades in */
+const SLIDE_DURATION = 9000;
+
+/** shown until the first slide is published, so the hero never collapses */
+const PLACEHOLDER_SLIDE: HeroSlide = {
+  id: "slide-placeholder",
+  quote: slot("اقتباس"),
+  source: slot("المصدر"),
+  date: slot("التاريخ"),
+  media: media("image", "صورة أرشيفية", 16 / 9),
+};
 
 /**
  * Editorial hero: one archival image bound to one quote.
  * Image and quote live in parallel stacks and are crossfaded by a single
  * timeline, so the words can never drift away from the picture.
  */
-export function HeroSlider() {
+export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
   const { introVisible } = useUI();
+  const { person } = useSiteContent();
+  const heroSlides = slides.length ? slides : [PLACEHOLDER_SLIDE];
+  const total = heroSlides.length;
   const [index, setIndex] = useState(0);
   const indexRef = useRef(0);
   const busy = useRef(false);
@@ -83,7 +97,7 @@ export function HeroSlider() {
       ease: "none",
       onComplete: () => goRef.current((indexRef.current + 1) % total),
     });
-  }, []);
+  }, [total]);
 
   const go = useCallback(
     (next: number) => {

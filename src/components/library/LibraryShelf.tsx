@@ -1,30 +1,30 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import {
-  countIn,
-  libraryCategories,
-  libraryCategoryLabel,
-  libraryItems,
-  titleCount,
-  type LibraryCategory,
-} from "@/data/library";
+import { libraryCategories, libraryCategoryLabel, titleCount } from "@/data/library";
+import type { LibraryCategory, LibraryItem } from "@/lib/content/types";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { useReveal } from "@/hooks/useReveal";
 import { cn, prefersReducedMotion } from "@/lib/utils";
 import { MediaFrame, ParagraphSlot, Slot } from "@/components/ui/Placeholders";
 import { OrnamentGrid } from "@/components/ui/OrnamentGrid";
+import { DownloadIcon } from "@/components/ui/Icons";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 
-/** دار النشر: بابان — مؤلفات الدار، ومؤلفات عن السيد. Covers are placeholders. */
-export function LibraryShelf() {
+/** دار النشر: بابان — مؤلفات الدار، ومؤلفات عن السيد. */
+export function LibraryShelf({ items: libraryItems }: { items: LibraryItem[] }) {
   const ref = useReveal<HTMLDivElement>({ stagger: 0.05 });
   /* لا بابَ مفتوحًا قبل أن يختار الزائر: البطاقتان محايدتان، والفهرس يعرض الكل */
   const [category, setCategory] = useState<LibraryCategory | null>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const featuredRef = useRef<HTMLDivElement>(null);
 
-  const items = useMemo(() => (category ? libraryItems.filter((b) => b.category === category) : libraryItems), [category]);
+  const items = useMemo(
+    () => (category ? libraryItems.filter((b) => b.category === category) : libraryItems),
+    [libraryItems, category],
+  );
+  /* عدد العناوين خلف كل باب — يُشتقّ من اللائحة نفسها */
+  const countIn = (c: LibraryCategory) => libraryItems.filter((b) => b.category === c).length;
   const featured = items[0];
   const key = items.map((i) => i.id).join("|");
 
@@ -108,7 +108,7 @@ export function LibraryShelf() {
           <OrnamentGrid scale={2} fade="start" opacity={0.07} />
           <div ref={featuredRef} className="px-gutter relative grid gap-10 md:grid-cols-12 md:items-center md:gap-8">
             <div key={`${featured.id}-cover`} data-reveal className="md:col-span-4 lg:col-span-3">
-              <MediaFrame media={featured.media} ratio={3 / 4} tone="night" unitSize="md" interactive />
+              <MediaFrame media={featured.media} ratio={3 / 4} tone="night" unitSize="md" interactive sizes="(min-width: 768px) 25vw, 100vw" />
             </div>
             <div className="md:col-span-7 md:col-start-6">
               <p data-reveal className="eyebrow">
@@ -136,6 +136,17 @@ export function LibraryShelf() {
                   </div>
                 ))}
               </dl>
+              {featured.fileUrl && (
+                <a
+                  data-reveal
+                  href={featured.fileUrl}
+                  download
+                  className="mt-8 inline-flex h-11 items-center gap-3 rounded-ui border border-gold/70 px-5 text-[0.75rem] tracking-[0.1em] text-gold transition-colors duration-300 hover:bg-gold hover:text-night"
+                >
+                  <DownloadIcon className="h-4 w-4" />
+                  تحميل النسخة الرقمية
+                </a>
+              )}
             </div>
           </div>
         </section>
@@ -154,7 +165,7 @@ export function LibraryShelf() {
           <div ref={gridRef} className="mt-10 grid grid-cols-2 gap-x-6 gap-y-12 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
             {items.map((book, i) => (
               <article key={book.id} id={book.id} data-book className="group">
-                <MediaFrame media={book.media} ratio={3 / 4} tone="dark" unitSize="sm" interactive showLabel={false} />
+                <MediaFrame media={book.media} ratio={3 / 4} tone="dark" unitSize="sm" interactive showLabel={false} sizes="(min-width: 1280px) 16vw, (min-width: 640px) 33vw, 50vw" />
                 <h3 className="mt-4 text-[0.9rem] leading-[1.6] text-cream transition-colors duration-300 group-hover:text-gold">
                   <Slot value={book.title} />
                 </h3>

@@ -1,7 +1,7 @@
 "use client";
 
-import { contact } from "@/data/site";
 import { contributeCopy } from "@/data/contribute";
+import { useSiteContent } from "@/components/content/SiteContent";
 import { useReveal } from "@/hooks/useReveal";
 import { Button } from "@/components/ui/Button";
 import { Ornament } from "@/components/ui/Ornament";
@@ -16,6 +16,7 @@ type Props = {
 
 /** Two ways to reach the institution: send it a document, or join it. */
 export function ContactForm({ open, onOpen }: Props) {
+  const { settings: contact } = useSiteContent();
   const ref = useReveal<HTMLDivElement>();
 
   const cardClass =

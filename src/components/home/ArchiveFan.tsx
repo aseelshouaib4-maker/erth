@@ -1,16 +1,14 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { archivePhotos } from "@/data/archive";
 import { ui } from "@/data/site";
 import { gsap, useGSAP, MEDIA } from "@/lib/gsap";
+import type { ArchiveItem } from "@/lib/content/types";
 import { cn, prefersReducedMotion } from "@/lib/utils";
 import { TransitionLink } from "@/components/layout/TransitionLink";
 import { MediaFrame, Slot } from "@/components/ui/Placeholders";
 import { ArrowBackIcon, ArrowIcon } from "@/components/ui/Icons";
 import { Ornament } from "@/components/ui/Ornament";
-
-const total = archivePhotos.length;
 
 /** three photographs laid out as a fan, the middle one carrying the composition */
 const layout = [
@@ -20,7 +18,8 @@ const layout = [
 ];
 
 /** On the archive paper ground: ink on old paper, as the guide sets it. */
-export function ArchiveFan() {
+export function ArchiveFan({ photos: archivePhotos }: { photos: ArchiveItem[] }) {
+  const total = archivePhotos.length;
   const ref = useRef<HTMLElement>(null);
   const [index, setIndex] = useState(0);
   const revealed = useRef(false);
@@ -131,7 +130,7 @@ export function ArchiveFan() {
             const l = layout[i];
             return (
               <div key={`${item.id}-${i}`} data-card className={cn(l.width, l.overlap, l.z, "shrink-0 opacity-0")}>
-                <MediaFrame media={item.media} ratio={3 / 4} tone="paper" interactive showLabel={false} unitSize={i === 1 ? "md" : "sm"} />
+                <MediaFrame media={item.media} ratio={3 / 4} tone="paper" interactive showLabel={false} unitSize={i === 1 ? "md" : "sm"} sizes="(min-width: 768px) 34vw, 40vw" />
               </div>
             );
           })}

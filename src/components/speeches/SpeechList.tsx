@@ -1,11 +1,12 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { speechItems, type SpeechItem } from "@/data/speeches";
-import { stageById } from "@/data/person";
+import type { SpeechItem } from "@/lib/content/types";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { cn, formatYear, prefersReducedMotion } from "@/lib/utils";
+import { useSiteContent } from "@/components/content/SiteContent";
 import { MediaFrame, ParagraphSlot, Slot } from "@/components/ui/Placeholders";
+import { VideoPlayer } from "@/components/ui/VideoPlayer";
 import { PlayIcon } from "@/components/ui/Icons";
 
 /**
@@ -13,7 +14,8 @@ import { PlayIcon } from "@/components/ui/Icons";
  * Used whole by «/speeches» and, unchanged, by the خطابات filter inside «أرشيف»
  * — which passes the speeches its own date filter has kept.
  */
-export function SpeechList({ items = speechItems }: { items?: SpeechItem[] } = {}) {
+export function SpeechList({ items }: { items: SpeechItem[] }) {
+  const { stageById } = useSiteContent();
   const [activeId, setActiveId] = useState(items[0]?.id);
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -37,7 +39,7 @@ export function SpeechList({ items = speechItems }: { items?: SpeechItem[] } = {
     <div className="px-gutter bg-blue py-12 md:py-20">
       <div className="grid gap-10 lg:grid-cols-12 lg:gap-8">
         <div className="lg:col-span-8">
-          <MediaFrame key={active.id} media={active.media} ratio={16 / 9} tone="dark" unitSize="lg" interactive />
+          <VideoPlayer key={active.id} media={active.media} ratio={16 / 9} tone="dark" unitSize="lg" sizes="(min-width: 1024px) 66vw, 100vw" />
         </div>
         <div className="flex flex-col justify-end lg:col-span-4">
           <p className="eyebrow">خطاب · {formatYear(active.year)}</p>
@@ -72,7 +74,7 @@ export function SpeechList({ items = speechItems }: { items?: SpeechItem[] } = {
                 >
                   <span className="text-display text-[1.3rem] leading-none tabular-nums text-current/70">{String(i + 1).padStart(2, "0")}</span>
                   <span className="hidden md:block">
-                    <MediaFrame media={item.media} ratio={16 / 9} tone="dark" unitSize="sm" showLabel={false} interactive className="w-40" />
+                    <MediaFrame media={item.media} ratio={16 / 9} tone="dark" unitSize="sm" showLabel={false} interactive className="w-40" sizes="160px" />
                   </span>
                   <span className="min-w-0">
                     <span className="text-heading block text-[1.05rem] md:text-[1.2rem]">

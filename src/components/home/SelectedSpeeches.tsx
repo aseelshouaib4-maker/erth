@@ -1,24 +1,24 @@
 "use client";
 
 import { useState } from "react";
-import { speechItems } from "@/data/speeches";
-import { stageById } from "@/data/person";
 import { ui } from "@/data/site";
 import { useReveal } from "@/hooks/useReveal";
+import type { SpeechItem } from "@/lib/content/types";
 import { cn, formatYear } from "@/lib/utils";
+import { useSiteContent } from "@/components/content/SiteContent";
 import { TransitionLink } from "@/components/layout/TransitionLink";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Button } from "@/components/ui/Button";
-import { MediaFrame, Slot } from "@/components/ui/Placeholders";
+import { Slot } from "@/components/ui/Placeholders";
+import { VideoPlayer } from "@/components/ui/VideoPlayer";
 import { ArrowIcon } from "@/components/ui/Icons";
 
-const featured = speechItems.slice(0, 5);
-
 /** Video-led: one large player, a playlist beside it. Hovering a row swaps the preview. */
-export function SelectedSpeeches() {
+export function SelectedSpeeches({ speeches: featured }: { speeches: SpeechItem[] }) {
   const ref = useReveal<HTMLElement>();
+  const { stageById } = useSiteContent();
   const [active, setActive] = useState(0);
-  const current = featured[active];
+  const current = featured[Math.min(active, featured.length - 1)];
   const stage = stageById(current.stageId);
 
   return (
@@ -35,7 +35,7 @@ export function SelectedSpeeches() {
 
         <div className="mt-14 grid gap-10 lg:grid-cols-12 lg:gap-8">
           <div data-reveal className="lg:col-span-7">
-            <MediaFrame key={current.id} media={current.media} ratio={16 / 9} tone="blue" unitSize="lg" interactive />
+            <VideoPlayer key={current.id} media={current.media} ratio={16 / 9} tone="blue" unitSize="lg" sizes="(min-width: 1024px) 58vw, 100vw" />
             <div className="mt-5 flex flex-wrap items-baseline justify-between gap-4">
               <h3 className="text-heading text-[1.25rem] text-cream md:text-[1.5rem]">
                 <Slot value={current.title} />

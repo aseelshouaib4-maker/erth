@@ -1,4 +1,3 @@
-import { slot } from "@/lib/placeholder";
 
 /**
  * «استمارة طلب تطوّع» — البنية والنصوص منقولة حرفيًا عن ملف الاستمارة،
@@ -10,12 +9,11 @@ export const volunteerCopy = {
   org: "مؤسّسة حفظ ونشر آثار",
   title: "استمارة طلب تطوّع",
   lead: "يسرّ المؤسّسة دعوة أصحاب الاختصاصات والكفاءات والمهارات كافّة للانضمام إلى فريق المتطوّعين فيها. يُرجى تعبئة هذه الاستمارة بدقّة وإرسالها إلى البريد الإلكتروني للمؤسّسة، وسيتمّ التواصل مع المقبولين وفق حاجة الأقسام.",
-  submitNote: "تُرسل الاستمارة بعد تعبئتها إلى البريد الإلكتروني للمؤسّسة:",
-  submitEmail: slot("البريد الإلكتروني للمؤسّسة"),
+  submitNote: "تصل الاستمارة مباشرةً إلى فريق المؤسّسة.",
   thanks: "شكراً لرغبتكم في خدمة هذا المشروع المبارك",
   submit: "إرسال الاستمارة",
-  uiNote: "نموذج واجهة — لا يُرسل إلى خادم بعد.",
-  sent: "تم استلام الاستمارة محليًا — واجهة فقط، لم تُربط بخادم بعد.",
+  sending: "جارٍ الإرسال…",
+  sent: "وصلت استمارتك. شكراً لك — سيتواصل معك الفريق.",
 } as const;
 
 /**
@@ -216,3 +214,33 @@ export const specialtyNote =
 
 export const specialtyIntro =
   "انطلاقاً من مبدأ «التفاعليّة والمشاركة» الذي تقوم عليه المؤسّسة، وحرصاً على إشراك أصحاب الكفاءات من المحبّين والمهتمّين في لبنان وخارجه، تفتح المؤسّسة باب التطوّع أمام أصحاب الاختصاصات العلميّة والمهنيّة والمهارات المختلفة.";
+
+const languageSkills: Record<string, string> = { reading: "قراءة", writing: "كتابة", speaking: "محادثة" };
+
+const volunteerLabels: Record<string, string> = Object.fromEntries([
+  ...[...personalFields, ...contactFields, ...academicFields, ...experienceFields, ...fieldFields].map((f) => [f.id, f.label]),
+  ["educationLevel", "المستوى التعليمي"],
+  ["specialties", "الاختصاص العلمي الدقيق"],
+  ["departments", "القسم المرغوب"],
+  ["otherDepartment", "قسم آخر"],
+  ["availability", "الأوقات المفضّلة"],
+  ["mode", "نمط التطوّع"],
+  ...generalQuestions.map((q, i) => [`question-${i}`, q]),
+]);
+
+/**
+ * The label of a submitted field, or undefined for a name the form does not
+ * have — the server keeps only fields it can name.
+ */
+export function volunteerFieldLabel(name: string): string | undefined {
+  if (name in volunteerLabels) return volunteerLabels[name];
+  const language = /^language-(\d+)(?:-(reading|writing|speaking))?$/.exec(name);
+  if (!language || Number(language[1]) >= languageRows) return undefined;
+  const row = `اللغة ${Number(language[1]) + 1}`;
+  return language[2] ? `${row} — ${languageSkills[language[2]]}` : row;
+}
+
+/** Fields the server insists on, matching the `required` marks in the form. */
+export const volunteerRequiredFields = [...personalFields, ...contactFields]
+  .filter((f) => "required" in f && f.required)
+  .map((f) => f.id);

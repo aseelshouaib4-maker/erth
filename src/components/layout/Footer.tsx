@@ -1,7 +1,8 @@
 "use client";
 
-import { brand, contact, nav, socials, ui, type SocialId } from "@/data/site";
-import { person } from "@/data/person";
+import { brand, nav, ui } from "@/data/site";
+import type { SocialId } from "@/lib/content/types";
+import { useSiteContent } from "@/components/content/SiteContent";
 import { Logo, Wordmark } from "@/components/ui/Brand";
 import { OrnamentGrid } from "@/components/ui/OrnamentGrid";
 import { Button } from "@/components/ui/Button";
@@ -66,6 +67,8 @@ function ColumnHead({ children }: { children: React.ReactNode }) {
  * the house, its sections, and how to reach it.
  */
 export function Footer() {
+  const { person, settings } = useSiteContent();
+  const { socials, ...contact } = settings;
   const year = new Date().getFullYear();
 
   return (

@@ -1,0 +1,23 @@
+# Local development database only. Production runs Postgres on the server itself.
+# The host port defaults to 5434 to stay clear of any Postgres already on the machine;
+# override with POSTGRES_PORT in `.env` and match it in DATABASE_URL.
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    ports:
+      - "${POSTGRES_PORT:-5434}:5432"
+    environment:
+      POSTGRES_USER: erth
+      POSTGRES_PASSWORD: erth
+      POSTGRES_DB: erth
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U erth -d erth"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:

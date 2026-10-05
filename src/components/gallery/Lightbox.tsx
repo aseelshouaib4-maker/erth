@@ -1,19 +1,20 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { galleryItems } from "@/data/gallery";
-import { stageById } from "@/data/person";
 import { ui } from "@/data/site";
+import type { GalleryItem } from "@/lib/content/types";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { formatYear, prefersReducedMotion } from "@/lib/utils";
+import { useSiteContent } from "@/components/content/SiteContent";
 import { Modal } from "@/components/ui/Modal";
 import { MediaFrame, Slot } from "@/components/ui/Placeholders";
 import { ArrowBackIcon, ArrowIcon, CloseIcon } from "@/components/ui/Icons";
 
-type Props = { open: boolean; index: number; onClose: () => void; onChange: (i: number) => void };
+type Props = { items: GalleryItem[]; open: boolean; index: number; onClose: () => void; onChange: (i: number) => void };
 
 /** Fullscreen viewer with keyboard navigation and directional slide transitions. */
-export function Lightbox({ open, index, onClose, onChange }: Props) {
+export function Lightbox({ items: galleryItems, open, index, onClose, onChange }: Props) {
+  const { stageById } = useSiteContent();
   const frameRef = useRef<HTMLDivElement>(null);
   const lastIndex = useRef(index);
   const total = galleryItems.length;
@@ -61,7 +62,7 @@ export function Lightbox({ open, index, onClose, onChange }: Props) {
 
         <div className="px-gutter flex min-h-0 flex-1 items-center justify-center">
           <div ref={frameRef} className="w-full" style={{ maxWidth: `min(92vw, calc(70vh * ${current.ratio}))` }}>
-            <MediaFrame media={current.media} ratio={current.ratio} tone="blue" unitSize="lg" />
+            <MediaFrame media={current.media} ratio={current.ratio} tone="blue" unitSize="lg" sizes="92vw" />
           </div>
         </div>
 

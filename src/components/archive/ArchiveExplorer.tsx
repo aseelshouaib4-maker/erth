@@ -2,23 +2,15 @@
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  archiveItems,
-  archivePeriods,
-  archiveSuggestions,
-  archiveTypeLabel,
-  archiveTypes,
-  videoKindLabel,
-  type ArchiveItem,
-  type ArchiveType,
-} from "@/data/archive";
-import { speechItems } from "@/data/speeches";
-import { moments, stageById } from "@/data/person";
-import { normalizeArabic } from "@/data/search";
+import { archivePeriods, archiveSuggestions, archiveTypeLabel, archiveTypes, videoKindLabel } from "@/data/archive";
 import { ui } from "@/data/site";
+import { normalizeArabic } from "@/lib/arabic";
+import type { ArchiveItem, ArchiveType, Moment, SpeechItem } from "@/lib/content/types";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { cn, prefersReducedMotion } from "@/lib/utils";
+import { useSiteContent } from "@/components/content/SiteContent";
 import { MediaFrame, Slot } from "@/components/ui/Placeholders";
+import { VideoPlayer } from "@/components/ui/VideoPlayer";
 import { CloseIcon, DownloadIcon, SearchIcon } from "@/components/ui/Icons";
 import { Ornament } from "@/components/ui/Ornament";
 import { SpeechList } from "@/components/speeches/SpeechList";
@@ -34,33 +26,35 @@ const footprint: Record<string, string> = {
 const controlClass =
   "inline-flex h-9 items-center gap-2 border px-3 text-[0.68rem] tracking-[0.08em] transition-colors";
 
-/** محطّات كل مرحلة، مجموعة تحت معرّفها — «حرب تموز 2006» تُذكر هنا لا في العنوان. */
-const stageMoments = moments.reduce<Record<string, string>>((acc, moment) => {
-  acc[moment.stageId] = `${acc[moment.stageId] ?? ""} ${moment.label} ${moment.date ?? moment.year}`;
-  return acc;
-}, {});
-
 /**
- * كل ما يمكن البحث فيه داخل المادّة الواحدة: عنوان المرحلة وفترتها ومحطّاتها
- * ونوع المادّة وسنتها. يُبنى مرّة واحدة، ومُطبَّع عربيًّا حتى تطابق
- * «حرب غزّة» و«حرب غزة».
+ * كل ما يمكن البحث فيه داخل المادّة الواحدة: عنوانها، وعنوان المرحلة وفترتها
+ * ومحطّاتها، ونوع المادّة وسنتها. مُطبَّع عربيًّا حتى تطابق «حرب غزّة» و«حرب غزة».
  */
-const haystacks = new Map(
-  archiveItems.map((item) => {
-    const stage = stageById(item.stageId);
-    const text = [
-      stage?.title,
-      stage?.period,
-      stageMoments[item.stageId],
-      archiveTypeLabel(item.type),
-      item.kind ? videoKindLabel[item.kind] : "",
-      item.year,
-    ]
-      .filter(Boolean)
-      .join(" ");
-    return [item.id, normalizeArabic(text)] as const;
-  }),
-);
+function buildHaystacks(items: ArchiveItem[], moments: Moment[], stageById: ReturnType<typeof useSiteContent>["stageById"]) {
+  /* محطّات كل مرحلة، مجموعة تحت معرّفها — «حرب تموز 2006» تُذكر هنا لا في العنوان */
+  const stageMoments = new Map<string, string>();
+  for (const moment of moments) {
+    if (!moment.stageId) continue;
+    stageMoments.set(moment.stageId, `${stageMoments.get(moment.stageId) ?? ""} ${moment.label} ${moment.date ?? moment.year}`);
+  }
+  return new Map(
+    items.map((item) => {
+      const stage = stageById(item.stageId);
+      const text = [
+        typeof item.title === "string" ? item.title : "",
+        stage?.title,
+        stage?.period,
+        item.stageId ? stageMoments.get(item.stageId) : "",
+        archiveTypeLabel(item.type),
+        item.kind ? videoKindLabel[item.kind] : "",
+        item.year,
+      ]
+        .filter(Boolean)
+        .join(" ");
+      return [item.id, normalizeArabic(text)] as const;
+    }),
+  );
+}
 
 /** رقاقة واحدة — هيئة واحدة للمحتوى والتاريخ معًا، والمختار يمتلئ ذهبًا. */
 function Chip({
@@ -123,8 +117,12 @@ function DownloadControl({ item }: { item: ArchiveItem }) {
   );
 }
 
-/** Filters run on local mock data; the UI is what matters here. */
-export function ArchiveExplorer() {
+type Props = { items: ArchiveItem[]; speeches: SpeechItem[]; moments: Moment[] };
+
+/** Filters and search run in the browser over the published archive. */
+export function ArchiveExplorer({ items: archiveItems, speeches: speechItems, moments }: Props) {
+  const { stageById } = useSiteContent();
+  const haystacks = useMemo(() => buildHaystacks(archiveItems, moments, stageById), [archiveItems, moments, stageById]);
   const params = useSearchParams();
   const initialType = (params.get("type") as ArchiveType | null) ?? "all";
   const [type, setType] = useState<ArchiveType | "all">(archiveTypes.some((t) => t.id === initialType) ? initialType : "all");
@@ -164,14 +162,14 @@ export function ArchiveExplorer() {
       }
       return true;
     });
-  }, [type, period, query]);
+  }, [archiveItems, haystacks, type, period, query]);
 
   /* «خطابات» keeps its own presentation — the list from «/speeches», unchanged */
   const speeches = useMemo(() => {
     if (type !== "speech") return [];
     const kept = new Set(items.map((i) => i.id));
     return speechItems.filter((s) => kept.has(s.id));
-  }, [type, items]);
+  }, [speechItems, type, items]);
 
   const key = items.map((i) => i.id).join("|");
   const filtered = type !== "all" || period !== "all" || query.trim() !== "";
@@ -324,7 +322,19 @@ export function ArchiveExplorer() {
                 const stage = stageById(item.stageId);
                 return (
                   <article key={item.id} id={item.id} data-cell className={cn("group relative overflow-hidden md:col-span-3", footprint[item.size])}>
-                    <MediaFrame media={item.media} fill tone="dark" interactive showLabel={false} unitSize={item.size === "lg" ? "lg" : "md"} />
+                    {item.media.video ? (
+                      <VideoPlayer media={item.media} fill tone="dark" unitSize="md" sizes="(min-width: 1024px) 50vw, 100vw" />
+                    ) : (
+                      <MediaFrame
+                        media={item.media}
+                        fill
+                        tone="dark"
+                        interactive
+                        showLabel={false}
+                        unitSize={item.size === "lg" ? "lg" : "md"}
+                        sizes="50vw"
+                      />
+                    )}
 
                     <div className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-2 bg-linear-to-t from-night/95 to-transparent p-4 opacity-0 transition-all duration-500 ease-out-expo group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100 md:p-5">
                       <div className="pointer-events-auto flex items-end justify-between gap-3">

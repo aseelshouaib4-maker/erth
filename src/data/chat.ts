@@ -1,4 +1,4 @@
-import { media, slot, type MediaPlaceholder, type TextSlot } from "@/lib/placeholder";
+import { media, slot, type MediaRef, type TextSlot } from "@/lib/placeholder";
 
 /**
  * UI-only mock for the video-answer assistant being built by the AI team.
@@ -14,13 +14,13 @@ export type ResultItem = {
   title: TextSlot | string;
   meta?: string;
   href: string;
-  media: MediaPlaceholder;
+  media: MediaRef;
 };
 
 export type AssistantAnswer = {
   id: string;
   /** الإجابة الأساسية: مقطع فيديو */
-  video: MediaPlaceholder;
+  video: MediaRef;
   title: TextSlot;
   /** بيانات المقطع */
   duration: TextSlot;

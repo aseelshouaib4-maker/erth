@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { galleryItems } from "@/data/gallery";
-import { stageById } from "@/data/person";
 import { useParallax } from "@/hooks/useParallax";
+import type { GalleryItem } from "@/lib/content/types";
 import { useReveal } from "@/hooks/useReveal";
 import { cn, formatYear } from "@/lib/utils";
+import { useSiteContent } from "@/components/content/SiteContent";
 import { MediaFrame, Slot } from "@/components/ui/Placeholders";
 import { Lightbox } from "./Lightbox";
 
@@ -22,7 +22,8 @@ const offsets = ["", "md:mt-20", "md:mt-8", "md:-mt-12", "md:mt-16", "", "md:mt-
 const speeds = [0.1, 0.25, 0.16, 0.08, 0.28, 0.12, 0.2, 0.3];
 
 /** Asymmetric, variable-size gallery with a fullscreen viewer. */
-export function GalleryGrid() {
+export function GalleryGrid({ items: galleryItems }: { items: GalleryItem[] }) {
+  const { stageById } = useSiteContent();
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
   const revealRef = useReveal<HTMLDivElement>({ stagger: 0.05 });
@@ -45,7 +46,7 @@ export function GalleryGrid() {
                   className="group block w-full text-start"
                   aria-label={`فتح الصورة ${i + 1}`}
                 >
-                  <MediaFrame media={item.media} ratio={item.ratio} tone="dark" interactive showLabel={false} />
+                  <MediaFrame media={item.media} ratio={item.ratio} tone="dark" interactive showLabel={false} sizes="(min-width: 768px) 60vw, 100vw" />
                   <div className="mt-3 flex items-baseline justify-between gap-3 text-[0.72rem] tracking-[0.08em]">
                     <span className="text-cream/85 transition-colors group-hover:text-gold">
                       <Slot value={item.caption} />
@@ -59,7 +60,9 @@ export function GalleryGrid() {
           })}
         </div>
       </div>
-      <Lightbox open={open} index={index} onClose={() => setOpen(false)} onChange={setIndex} />
+      {galleryItems.length > 0 && (
+        <Lightbox items={galleryItems} open={open} index={index} onClose={() => setOpen(false)} onChange={setIndex} />
+      )}
     </>
   );
 }

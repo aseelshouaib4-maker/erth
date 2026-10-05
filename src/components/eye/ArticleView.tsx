@@ -1,15 +1,26 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { eyeCopy, type EyeItem } from "@/data/eye";
+import { eyeCopy } from "@/data/eye";
 import { useReveal } from "@/hooks/useReveal";
+import type { Article } from "@/lib/content/types";
+import { slot } from "@/lib/placeholder";
 import { MediaFrame, ParagraphSlot, Slot } from "@/components/ui/Placeholders";
 import { OrnamentGrid } from "@/components/ui/OrnamentGrid";
 import { ArrowBackIcon } from "@/components/ui/Icons";
 import { TransitionLink } from "@/components/layout/TransitionLink";
 
-/** One article. Every string is a slot until the material arrives. */
-export function ArticleView({ item, index }: { item: EyeItem; index: number }) {
+const BODY_SLOT = slot("متن المقال");
+
+type Props = {
+  item: Article;
+  index: number;
+  /** the rendered rich-text body; null until the article has one */
+  body: React.ReactNode | null;
+};
+
+/** One article. Empty fields show as slots until the material arrives. */
+export function ArticleView({ item, index, body }: Props) {
   const ref = useReveal<HTMLElement>();
   const router = useRouter();
 
@@ -67,7 +78,7 @@ export function ArticleView({ item, index }: { item: EyeItem; index: number }) {
 
       <div className="px-gutter mx-auto max-w-3xl pb-24 md:pb-32">
         <div data-reveal>
-          <MediaFrame media={item.media} ratio={16 / 9} tone="dark" unitSize="lg" showLabel={false} />
+          <MediaFrame media={item.media} ratio={16 / 9} tone="dark" unitSize="lg" showLabel={false} sizes="(min-width: 768px) 768px, 100vw" priority />
           <p className="mt-4 flex items-center gap-3 text-[0.65rem] tracking-[0.08em] text-blue-54">
             <span className="rule-gold w-6 shrink-0" aria-hidden="true" />
             {item.media.label}
@@ -76,11 +87,15 @@ export function ArticleView({ item, index }: { item: EyeItem; index: number }) {
 
         <div data-reveal className="mt-14">
           <p className="eyebrow mb-6">المتن</p>
-          <div className="space-y-10">
-            <ParagraphSlot value={item.body} lines={5} />
-            <ParagraphSlot value={item.body} lines={4} />
-            <ParagraphSlot value={item.body} lines={5} />
-          </div>
+          {body ? (
+            <div className="prose-article">{body}</div>
+          ) : (
+            <div className="space-y-10">
+              <ParagraphSlot value={BODY_SLOT} lines={5} />
+              <ParagraphSlot value={BODY_SLOT} lines={4} />
+              <ParagraphSlot value={BODY_SLOT} lines={5} />
+            </div>
+          )}
         </div>
 
         <div data-reveal className="mt-16 border-t border-cream/15 pt-8">

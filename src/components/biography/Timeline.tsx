@@ -1,16 +1,15 @@
 "use client";
 
 import { useRef } from "react";
-import { stages } from "@/data/person";
 import { gsap, ScrollTrigger, useGSAP, MEDIA } from "@/lib/gsap";
+import type { Stage } from "@/lib/content/types";
 import { cn } from "@/lib/utils";
+import { useSiteContent } from "@/components/content/SiteContent";
 import { MediaFrame, Slot } from "@/components/ui/Placeholders";
 import { OrnamentGrid } from "@/components/ui/OrnamentGrid";
 
-const n = stages.length;
-
 /** the plate beside the text is a photograph; documents and clips live in the archive */
-const plateOf = (stage: (typeof stages)[number]) => stage.media.find((m) => m.kind === "image") ?? stage.media[0];
+const plateOf = (stage: Stage) => stage.media.find((m) => m.kind === "image") ?? stage.media[0];
 
 /**
  * Interactive timeline. Desktop: one pinned stage, scrubbed and snapped along a
@@ -18,6 +17,8 @@ const plateOf = (stage: (typeof stages)[number]) => stage.media.find((m) => m.ki
  * One DOM for both, so anchors (#stage-id) always resolve.
  */
 export function Timeline() {
+  const { stages } = useSiteContent();
+  const n = stages.length;
   const ref = useRef<HTMLElement>(null);
   const jumpRef = useRef<(i: number) => void>(() => {});
 
@@ -35,6 +36,8 @@ export function Timeline() {
       const mm = gsap.matchMedia();
 
       mm.add(`${MEDIA.desktop} and ${MEDIA.motion}`, () => {
+        // a single stage has nothing to scrub through
+        if (n < 2) return;
         let current = 0;
         gsap.set(panels, { autoAlpha: 0 });
         gsap.set(panels[0], { autoAlpha: 1 });
@@ -187,7 +190,7 @@ export function Timeline() {
                   <div className="lg:col-span-5 lg:col-start-8">
                     <figure data-panel-media data-panel-anim className="relative">
                       <div className="relative aspect-[3/2] w-full lg:aspect-[4/3]">
-                        <MediaFrame media={plate} fill tone="dark" unitSize="lg" showLabel={false} />
+                        <MediaFrame media={plate} fill tone="dark" unitSize="lg" showLabel={false} sizes="(min-width: 1024px) 40vw, 100vw" />
                       </div>
                       <span className="pointer-events-none absolute -bottom-2 -start-2 h-full w-full border border-gold/35" aria-hidden="true" />
                       <figcaption className="mt-5 flex items-center gap-3 text-[0.65rem] leading-[1.8] tracking-[0.08em] text-blue-54">

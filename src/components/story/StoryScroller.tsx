@@ -1,10 +1,10 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { stages } from "@/data/person";
 import { gsap, ScrollTrigger, useGSAP, MEDIA } from "@/lib/gsap";
 import { cn, prefersReducedMotion } from "@/lib/utils";
 import { TransitionLink } from "@/components/layout/TransitionLink";
+import { useSiteContent } from "@/components/content/SiteContent";
 import { MediaFrame, Slot } from "@/components/ui/Placeholders";
 import { Ornament } from "@/components/ui/Ornament";
 import { Meta } from "@/components/ui/Meta";
@@ -15,6 +15,7 @@ import { ArrowIcon } from "@/components/ui/Icons";
  * pass by; each chapter swaps the frame, slides it horizontally and re-scales it.
  */
 export function StoryScroller() {
+  const { stages } = useSiteContent();
   const ref = useRef<HTMLElement>(null);
   const [active, setActive] = useState(0);
 
@@ -81,6 +82,7 @@ export function StoryScroller() {
   );
 
   const current = stages[active];
+  if (!current) return null;
 
   return (
     <section ref={ref} className="relative bg-blue">
@@ -91,7 +93,7 @@ export function StoryScroller() {
             <div className="relative h-[68vh] w-full">
               {stages.map((stage, i) => (
                 <div key={stage.id} data-frame className={cn("absolute inset-0", i !== 0 && "invisible opacity-0")}>
-                  <MediaFrame media={stage.media[0]} fill tone="dark" unitSize="lg" />
+                  <MediaFrame media={stage.media[0]} fill tone="dark" unitSize="lg" sizes="50vw" />
                 </div>
               ))}
               <span className="pointer-events-none absolute -bottom-3 -start-3 h-full w-full border border-gold/40" aria-hidden="true" />
